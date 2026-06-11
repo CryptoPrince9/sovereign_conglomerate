@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('/api/deliverable/' + projectId);
                 const data = await res.json();
                 if (data.deliverable) {
-                    alert('Deliverable:\\n' + data.deliverable);
+                    const blob = new Blob([data.deliverable], { type: 'text/plain' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'Deliverable_' + projectId + '.md'; document.body.appendChild(a); a.click(); a.remove();
                 } else {
                     alert(data.status || 'Checking status...');
                 }

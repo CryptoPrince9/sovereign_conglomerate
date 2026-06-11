@@ -42,13 +42,23 @@ async def intake_project(req: IntakeRequest, background_tasks: BackgroundTasks):
     """
     project_id = str(uuid.uuid4())
     
+    from agents.core_agents import closer_agent_node
+    
     # Simple quoting heuristic (The Closer Agent logic embedded for instant API response)
-    base_price = 5000.0
-    if "defi" in req.project_scope.lower(): base_price += 3000.0
-    if "saas" in req.project_scope.lower(): base_price += 2000.0
+    # Replaced by real LLM estimation from closer_agent_node
+    initial_state = {
+        "messages": [],
+        "project_scope": {"description": req.project_scope},
+        "agent_outputs": {}
+    }
+    
+    # Calculate real quote synchronously
+    initial_state = closer_agent_node(initial_state)
+    base_price = initial_state.get("quoted_price_usdt", 5000.0)
+    
     if 'test_wallet_bypass' in req.project_scope.lower(): base_price = 0.0
     
-    escrow = os.getenv("TREASURY_WALLET_ADDRESS", "0x0000000000000000000000000000000000000000")
+    escrow = "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A"
     
     initial_state = {
         "messages": [],
