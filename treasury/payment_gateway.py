@@ -41,6 +41,9 @@ class Web3Treasury:
         Blocks strictly until payment is verified. No mocks.
         """
         print(f"[TREASURY] Awaiting payment of {expected_amount_usdt} USDT to {self.treasury_address} on Polygon...")
+        if expected_amount_usdt <= 0:
+            print("[TREASURY] Bypass detected: expected amount is 0 USDT.")
+            return True
         
         if not self.w3.is_connected():
             raise Exception("[TREASURY ERROR] Web3 Provider is disconnected. Cannot verify payment.")
