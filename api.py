@@ -12,6 +12,14 @@ app = FastAPI(title="The Sovereign Conglomerate API", version="1.0.0")
 # In-memory store for project states (in production, use Redis or Postgres)
 db = {}
 
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to The Sovereign Conglomerate API",
+        "docs": "Append /docs to the URL to view the Swagger UI documentation",
+        "status": "online"
+    }
+
 # Compile the LangGraph
 agency_workflow = build_graph()
 
