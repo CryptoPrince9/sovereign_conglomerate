@@ -54,6 +54,9 @@ def build_agent_node(agent_name: str, system_prompt: str):
 # Agent 1: The Ingestor (High-Ticket Closer)
 # ==========================================
 def closer_agent_node(state: ProjectState):
+    if state.get('quoted_price_usdt', 0) > 0:
+        print('[CLOSER AGENT] Quote already generated. Skipping.')
+        return state
     print("[CLOSER AGENT] Ingesting lead and generating quote...")
     # Simulated intake logic
     scope_str = str(state.get("project_scope", "Generic Project"))

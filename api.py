@@ -130,5 +130,23 @@ async def get_deliverable(project_id: str):
         "deliverable": state.get("client_deliverable")
     }
 
+class FeedbackRequest(BaseModel):
+    feedback: str
+
+@app.post("/api/feedback/{project_id}")
+async def submit_feedback(project_id: str, req: FeedbackRequest, background_tasks: BackgroundTasks):
+    if project_id not in db:
+        raise HTTPException(status_code=404, detail="Project not found")
+        
+    state = db[project_id]
+    state["client_feedback"] = req.feedback
+    state["qa_status"] = "PENDING"
+    # Append the feedback to the scope so agents use it
+    state["project_scope"]["description"] += f"\n\nCLIENT FEEDBACK FOR REVISION: {req.feedback}"
+    
+    # Restart the graph with the updated state
+    background_tasks.add_task(execute_workflow, project_id, state)
+    return {"status": "Feedback received. Agents are autonomously improving the deliverables."}
+
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)

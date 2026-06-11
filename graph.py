@@ -10,6 +10,8 @@ from treasury.payment_gateway import treasury
 from memory.long_term import memory_bank
 
 def treasury_validation_node(state: ProjectState):
+    if state.get('payment_status') == 'PAID':
+        return state
     """Wait for Web3 Treasury Layer to confirm USDT payment."""
     # Uses the shared treasury instance to verify funds based on the state quote
     is_paid = treasury.verify_payment(expected_amount_usdt=state.get("quoted_price_usdt", 0))
