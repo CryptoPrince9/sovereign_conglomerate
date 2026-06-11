@@ -1,4 +1,5 @@
 import os
+import time
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from dotenv import load_dotenv
@@ -11,7 +12,8 @@ load_dotenv()
 llm = ChatGoogleGenerativeAI(
     model=os.getenv("LLM_MODEL_NAME", "gemini-2.5-pro"),
     google_api_key=os.getenv("GEMINI_API_KEY", "missing-key-please-set"),
-    temperature=0.3
+    temperature=0.3,
+    max_retries=5
 )
 
 from langgraph.prebuilt import create_react_agent
@@ -35,6 +37,10 @@ def build_agent_node(agent_name: str, system_prompt: str):
             scope_info = f"Project Scope: {str(state.get('project_scope', {}))}\n"
             output_info = f"Current Outputs from others: {str(state.get('agent_outputs', {}))}\n"
             task_msg = f"{scope_info}{output_info}Execute your task using the tools provided if necessary. Return your final deliverable text."
+            
+            # Artificial delay to prevent Gemini Free Tier Rate Limits (429)
+            print(f"[{agent_name.upper()}] Sleeping for 10 seconds to respect rate limits...")
+            time.sleep(10)
             
             result = agent_executor.invoke({"messages": [HumanMessage(content=task_msg)]})
             # The result['messages'] contains the chat history; we want the last message content
@@ -161,6 +167,9 @@ def executive_coach_node(state: ProjectState):
             scope = str(state.get("project_scope", ""))
             output_str = str(outputs)
             prompt = f"You are the Executive Coach. The client requested this scope: {scope}\n\nThe agents generated these raw outputs: {output_str}\n\nFormat the raw outputs into a highly professional, cohesive, and clearly formatted Markdown deliverable. Do not add hallucinated features, just organize the raw outputs elegantly."
+            
+            print("[EXECUTIVE COACH] Sleeping for 10 seconds to respect rate limits...")
+            time.sleep(10)
             
             result = llm.invoke([HumanMessage(content=prompt)])
             state["client_deliverable"] = result.content
