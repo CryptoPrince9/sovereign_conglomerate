@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: sovereign-conglomerate-api
+    env: docker
+    region: oregon
+    plan: starter
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_API_BASE
+        value: https://api.openai.com/v1
+      - key: POLYGON_RPC_URL
+        value: https://polygon.llamarpc.com
+      - key: TREASURY_WALLET_ADDRESS
+        sync: false
+      - key: USDT_CONTRACT_ADDRESS
+        value: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
