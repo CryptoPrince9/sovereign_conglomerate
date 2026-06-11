@@ -10,7 +10,7 @@ load_dotenv()
 # Configure for local Odysseus by default
 llm = ChatGoogleGenerativeAI(
     model=os.getenv("LLM_MODEL_NAME", "gemini-2.5-pro"),
-    google_api_key=os.getenv("GEMINI_API_KEY"),
+    google_api_key=os.getenv("GEMINI_API_KEY", "missing-key-please-set"),
     temperature=0.3
 )
 
