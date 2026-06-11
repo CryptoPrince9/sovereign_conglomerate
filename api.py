@@ -42,6 +42,18 @@ async def network():
 async def contact():
     return FileResponse("frontend/contact.html")
 
+@app.get("/privacy")
+async def privacy():
+    return FileResponse("frontend/privacy.html")
+
+@app.get("/terms")
+async def terms():
+    return FileResponse("frontend/terms.html")
+
+@app.get("/docs")
+async def docs():
+    return FileResponse("frontend/docs.html")
+
 # Compile the LangGraph
 agency_workflow = build_graph()
 
