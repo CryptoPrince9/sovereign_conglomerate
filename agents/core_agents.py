@@ -14,9 +14,9 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.3
 )
 
-from langchain.agents import create_tool_calling_agent, AgentExecutor
-from langchain_core.prompts import ChatPromptTemplate
+from langgraph.prebuilt import create_react_agent
 from agents.tools import execute_python_code, write_deliverable_file, zip_project_directory
+from langchain_core.messages import HumanMessage
 
 # Tools available to all agents
 tools = [execute_python_code, write_deliverable_file, zip_project_directory]
@@ -26,21 +26,17 @@ def build_agent_node(agent_name: str, system_prompt: str):
     def agent_node(state: ProjectState):
         print(f"[{agent_name.upper()}] Processing task with real tools...")
         
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            ("human", "Project Scope: {scope}\nCurrent Outputs: {outputs}\nExecute your task using the tools provided if necessary. Return your final deliverable."),
-            ("placeholder", "{agent_scratchpad}"),
-        ])
-        
-        agent = create_tool_calling_agent(llm, tools, prompt)
-        agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+        # We use langgraph's native create_react_agent which handles tool calls natively
+        agent_executor = create_react_agent(llm, tools, state_modifier=system_prompt)
         
         try:
-            result = agent_executor.invoke({
-                "scope": str(state.get("project_scope", {})),
-                "outputs": str(state.get("agent_outputs", {}))
-            })
-            output = result.get("output", "Execution completed without text output.")
+            scope_info = f"Project Scope: {str(state.get('project_scope', {}))}\n"
+            output_info = f"Current Outputs from others: {str(state.get('agent_outputs', {}))}\n"
+            task_msg = f"{scope_info}{output_info}Execute your task using the tools provided if necessary. Return your final deliverable text."
+            
+            result = agent_executor.invoke({"messages": [HumanMessage(content=task_msg)]})
+            # The result['messages'] contains the chat history; we want the last message content
+            output = result["messages"][-1].content
         except Exception as e:
             print(f"[{agent_name.upper()}] Execution Error: {e}")
             output = f"[{agent_name}] Execution failed. Error: {e}"
