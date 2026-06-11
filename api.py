@@ -12,14 +12,23 @@ app = FastAPI(title="The Sovereign Conglomerate API", version="1.0.0")
 # In-memory store for project states (in production, use Redis or Postgres)
 db = {}
 
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+# Mount the static directory if we add css/js files later
+app.mount("/assets", StaticFiles(directory="frontend"), name="assets")
+
 @app.get("/")
 async def root():
-    return {
-        "message": "Welcome to The Sovereign Conglomerate API",
-        "docs": "Append /docs to the URL to view the Swagger UI documentation",
-        "status": "online"
-    }
+    return FileResponse("frontend/index.html")
 
+@app.get("/escrow")
+async def escrow():
+    return FileResponse("frontend/escrow.html")
+
+@app.get("/tracking")
+async def tracking():
+    return FileResponse("frontend/tracking.html")
 # Compile the LangGraph
 agency_workflow = build_graph()
 
