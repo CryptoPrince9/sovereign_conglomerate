@@ -7,7 +7,7 @@ from graph import build_graph
 from state import ProjectState
 from treasury.payment_gateway import treasury
 
-app = FastAPI(title="The Sovereign Agency API", version="1.0.0")
+app = FastAPI(title="The Sovereign Agency API", version="1.0.0", docs_url=None, redoc_url=None)
 
 # In-memory store for project states (in production, use Redis or Postgres)
 db = {}
