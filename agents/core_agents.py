@@ -27,7 +27,7 @@ def build_agent_node(agent_name: str, system_prompt: str):
         print(f"[{agent_name.upper()}] Processing task with real tools...")
         
         # We use langgraph's native create_react_agent which handles tool calls natively
-        agent_executor = create_react_agent(llm, tools, messages_modifier=system_prompt)
+        agent_executor = create_react_agent(llm, tools, prompt=system_prompt)
         
         try:
             scope_info = f"Project Scope: {str(state.get('project_scope', {}))}\n"
