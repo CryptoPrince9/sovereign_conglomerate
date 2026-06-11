@@ -1,13 +1,12 @@
 import json
 from state import ProjectState
 from langchain_core.messages import SystemMessage, HumanMessage
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 
-llm = ChatOpenAI(
-    api_key=os.getenv("OPENAI_API_KEY", "sk-local"),
-    base_url=os.getenv("OPENAI_API_BASE", "http://localhost:5000/v1"),
-    model=os.getenv("LLM_MODEL_NAME", "odysseus-local"),
+llm = ChatGoogleGenerativeAI(
+    model=os.getenv("LLM_MODEL_NAME", "gemini-2.5-pro"),
+    google_api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.0
 )
 

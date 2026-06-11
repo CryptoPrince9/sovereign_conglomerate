@@ -5,10 +5,8 @@ services:
     region: oregon
     plan: starter
     envVars:
-      - key: OPENAI_API_KEY
+      - key: GEMINI_API_KEY
         sync: false
-      - key: OPENAI_API_BASE
-        value: https://api.openai.com/v1
       - key: POLYGON_RPC_URL
         value: https://polygon.llamarpc.com
       - key: TREASURY_WALLET_ADDRESS
