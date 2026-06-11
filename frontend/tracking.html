@@ -145,7 +145,7 @@
 </div>
 <button class="bg-primary-container text-on-primary-fixed font-label-caps px-md py-xs rounded-lg active:scale-95 transition-transform neon-glow-cyan-strong">TRACK</button>
 </div>
-<button class="text-primary font-body-md font-bold hover:opacity-80 transition-opacity">Connect</button>
+<button id="connect-wallet-btn" class="text-primary font-body-md font-bold hover:opacity-80 transition-opacity">Connect</button>
 </div>
 </header>
 <!-- Main Content -->
@@ -384,3 +384,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script></body></html>
+<script>document.getElementById("connect-wallet-btn")?.addEventListener("click", async () => { if(typeof window.ethereum !== "undefined"){ try{ await window.ethereum.request({method: "eth_requestAccounts"}); alert("Wallet connected successfully!"); }catch(e){ alert("Connection rejected: " + e.message); } } else { alert("Please install a Web3 wallet (like MetaMask) to connect."); } });</script>
