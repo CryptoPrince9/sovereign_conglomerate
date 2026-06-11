@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
                 if (data.project_id) {
                     // Redirect to escrow and pass ID
-                    window.location.href = '/escrow?id=' + data.project_id;
+                    window.location.href = '/escrow?id=' + data.project_id + '&quote=' + data.quoted_price_usdt;
                 }
             } catch (err) {
                 alert('Error generating quote.');

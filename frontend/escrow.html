@@ -181,7 +181,7 @@
 <span class="font-label-caps text-label-caps text-on-surface-variant mb-md">Quote Generated</span>
 <div class="flex flex-col items-center">
 <h2 class="font-display-lg text-display-lg-mobile md:text-[64px] font-extrabold text-primary-container neon-glow-primary leading-tight">
-                            12,500 <span class="text-primary-fixed-dim opacity-70">USDT</span>
+                            <span id="quote-value">...</span> <span class="text-primary-fixed-dim opacity-70">USDT</span>
 </h2>
 <div class="flex items-center gap-sm mt-sm">
 <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
@@ -195,8 +195,8 @@
 <div class="flex flex-col gap-lg">
 <div class="flex flex-col gap-sm">
 <label class="font-label-caps text-label-caps text-on-surface-variant">Escrow Smart Contract</label>
-<div class="flex items-center justify-between p-md bg-white/5 border border-white/10 rounded-lg group hover:border-primary/50 transition-all cursor-pointer" onclick="navigator.clipboard.writeText('0x71C...4E92')">
-<span class="font-mono-data text-mono-data text-primary-fixed text-lg">0x71C...4E92</span>
+<div class="flex items-center justify-between p-md bg-white/5 border border-white/10 rounded-lg group hover:border-primary/50 transition-all cursor-pointer" onclick="navigator.clipboard.writeText('0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A')">
+<span class="font-mono-data text-mono-data text-primary-fixed text-lg">0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A</span>
 <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">content_copy</span>
 </div>
 </div>
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const id = urlParams.get('id');
     
     // Find text nodes or elements to replace with actual quote and address
-    if (id) {
+    if (id) { document.getElementById('quote-value').innerText = urlParams.get('quote') || '0.0'; 
         // Here we just mock it for display, but ideally we'd fetch /api/status/id
         // In reality, we just redirect to tracking after 5 seconds to simulate payment
         setTimeout(() => {
