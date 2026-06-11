@@ -22,7 +22,8 @@ def treasury_validation_node(state: ProjectState):
 def delivery_node(state: ProjectState):
     """Final delivery by Closer and storing to long-term memory."""
     print("[CLOSER AGENT] Finalizing delivery and signaling treasury to release funds...")
-    state["client_deliverable"] = f"Final Agency Output:\n{str(state.get('agent_outputs'))}"
+    if "client_deliverable" not in state or not state["client_deliverable"]:
+        state["client_deliverable"] = f"Final Agency Output:\n{str(state.get('agent_outputs'))}"
     
     # Store to long-term memory
     memory_bank.store_project(

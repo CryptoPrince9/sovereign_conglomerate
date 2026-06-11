@@ -17,6 +17,8 @@ llm = ChatGoogleGenerativeAI(
 from langgraph.prebuilt import create_react_agent
 from agents.tools import execute_python_code, write_deliverable_file, zip_project_directory
 from langchain_core.messages import HumanMessage
+from pydantic import BaseModel, Field
+from typing import List
 
 # Tools available to all agents
 tools = [execute_python_code, write_deliverable_file, zip_project_directory]
@@ -53,6 +55,10 @@ def build_agent_node(agent_name: str, system_prompt: str):
 # ==========================================
 # Agent 1: The Ingestor (High-Ticket Closer)
 # ==========================================
+class QuoteGeneration(BaseModel):
+    quoted_price_usdt: float = Field(description="The estimated price in USDT for the requested project scope. Must be a numeric value.")
+    assigned_agents: List[str] = Field(description="List of agents assigned to this project based on the scope.")
+
 def closer_agent_node(state: ProjectState):
     if state.get('quoted_price_usdt', 0) > 0:
         print('[CLOSER AGENT] Quote already generated. Skipping.')
@@ -63,17 +69,29 @@ def closer_agent_node(state: ProjectState):
     if "test_wallet_bypass" in scope_str.lower():
         print("[CLOSER AGENT] Bypass keyword detected. Forcing quote to 0.0 USDT.")
         base_price = 0.0
+        assigned = ["consultant_agent"]
     else:
         print("[CLOSER AGENT] Ingesting lead and generating quote...")
-        base_price = 5000.0
-        if "defi" in scope_str.lower(): base_price += 3000.0
-        if "saas" in scope_str.lower(): base_price += 2000.0
+        try:
+            # Enforce structured output to guarantee valid pricing and prevent hallucinations
+            structured_llm = llm.with_structured_output(QuoteGeneration)
+            result = structured_llm.invoke([
+                SystemMessage(content="You are the lead intake agent for Sovereign Agency. Your job is to analyze the project scope, assign relevant specialist agents, and generate a precise USDT quote. Base the quote roughly on complexity, typically between 1000 and 15000. Only assign from: consultant_agent, defi_architect_agent, regenagri_agent, edtech_agent, macro_fiscal_agent, b2b_automation_agent, micro_saas_agent, community_manager_agent."),
+                HumanMessage(content=f"Project Scope: {scope_str}")
+            ])
+            base_price = result.quoted_price_usdt
+            assigned = result.assigned_agents
+        except Exception as e:
+            print(f"[CLOSER AGENT] LLM Parsing failed, falling back to base heuristics: {e}")
+            base_price = 5000.0
+            assigned = ["consultant_agent"]
     
     escrow = os.getenv("TREASURY_WALLET_ADDRESS", "0x0000")
     
     state["quoted_price_usdt"] = base_price
     state["escrow_address"] = escrow
     state["payment_status"] = "PENDING"
+    state["assigned_agents"] = assigned
     
     print(f"[CLOSER AGENT] Quoted {base_price} USDT. Escrow: {escrow}")
     return state
@@ -126,7 +144,7 @@ community_manager_agent = build_agent_node(
 # Agent 10: Executive Coach (The Alignment Vector)
 # ==========================================
 def executive_coach_node(state: ProjectState):
-    print("[EXECUTIVE COACH] Performing QA on aggregated outputs...")
+    print("[EXECUTIVE COACH] Performing QA and synthesizing deliverables...")
     outputs = state.get("agent_outputs", {})
     
     # Mock evaluation logic
@@ -137,4 +155,17 @@ def executive_coach_node(state: ProjectState):
         state["qa_status"] = "APPROVED"
         state["qa_feedback"] = "All SOPs met. Deliverables are aligned with organizational standards."
         
+        # Explicitly synthesize into a professional markdown string to avoid "hallucinated" raw dictionaries
+        print("[EXECUTIVE COACH] Formatting deliverables...")
+        try:
+            scope = str(state.get("project_scope", ""))
+            output_str = str(outputs)
+            prompt = f"You are the Executive Coach. The client requested this scope: {scope}\n\nThe agents generated these raw outputs: {output_str}\n\nFormat the raw outputs into a highly professional, cohesive, and clearly formatted Markdown deliverable. Do not add hallucinated features, just organize the raw outputs elegantly."
+            
+            result = llm.invoke([HumanMessage(content=prompt)])
+            state["client_deliverable"] = result.content
+        except Exception as e:
+            print(f"[EXECUTIVE COACH] Formatting failed: {e}")
+            state["client_deliverable"] = f"Final Deliverables:\n\n{output_str}"
+            
     return state
