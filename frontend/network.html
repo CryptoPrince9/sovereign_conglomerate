@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sovereign Agency | Network</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#00dbe9",
+                    "primary-fixed": "#7df4ff",
+                    "secondary-container": "#4a494a",
+                    "surface-variant": "#343539",
+                    "on-primary-container": "#006970",
+                    "error-container": "#93000a",
+                    "secondary-fixed-dim": "#c8c6c7",
+                    "surface-container-high": "#292a2e",
+                    "on-primary-fixed-variant": "#004f54",
+                    "on-secondary": "#313031",
+                    "on-primary": "#00363a",
+                    "on-primary-fixed": "#002022",
+                    "tertiary": "#f8f4fa",
+                    "surface-dim": "#121317",
+                    "on-surface": "#e3e2e7",
+                    "primary": "#dbfcff",
+                    "on-secondary-fixed": "#1c1b1c",
+                    "on-error-container": "#ffdad6",
+                    "surface-bright": "#38393d",
+                    "inverse-on-surface": "#2f3034",
+                    "secondary": "#c8c6c7",
+                    "on-tertiary-fixed-variant": "#47464b",
+                    "tertiary-fixed-dim": "#c8c5cb",
+                    "inverse-primary": "#006970",
+                    "tertiary-container": "#dbd8de",
+                    "outline-variant": "#3b494b",
+                    "secondary-fixed": "#e5e2e3",
+                    "surface-container-highest": "#343539",
+                    "on-tertiary-container": "#5f5e63",
+                    "on-tertiary-fixed": "#1b1b1f",
+                    "primary-container": "#00f0ff",
+                    "surface-container-low": "#1a1b1f",
+                    "primary-fixed-dim": "#00dbe9",
+                    "surface-container": "#1e1f23",
+                    "surface": "#121317",
+                    "on-tertiary": "#303034",
+                    "tertiary-fixed": "#e4e1e7",
+                    "surface-container-lowest": "#0d0e12",
+                    "on-secondary-fixed-variant": "#474647",
+                    "on-surface-variant": "#b9cacb",
+                    "outline": "#849495",
+                    "on-error": "#690005",
+                    "on-background": "#e3e2e7",
+                    "on-secondary-container": "#bab8b9",
+                    "error": "#ffb4ab",
+                    "inverse-surface": "#e3e2e7",
+                    "background": "#121317"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "gutter": "20px",
+                    "margin-mobile": "16px",
+                    "xl": "40px",
+                    "sm": "8px",
+                    "base": "4px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "margin-desktop": "48px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "mono-data": ["13px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0B;
+            color: #e3e2e7;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(52, 53, 57, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .cyan-glow-hover:hover {
+            box-shadow: 0 0 20px rgba(0, 219, 233, 0.15);
+            border-color: rgba(0, 219, 233, 0.4);
+        }
+        .primary-glow {
+            box-shadow: 0 0 12px rgba(0, 219, 233, 0.3);
+        }
+        .primary-glow:hover {
+            box-shadow: 0 0 20px rgba(0, 219, 233, 0.5);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full bg-surface/60 backdrop-blur-lg border-b border-white/10 shadow-[0_0_20px_rgba(0,219,233,0.05)] z-50 h-20 flex justify-between items-center px-margin-desktop">
+<a href="/" class="font-display-lg text-display-lg tracking-tighter text-primary-container hover:opacity-80 transition-opacity">Sovereign Agency</a>
+<div class="hidden md:flex items-center gap-xl">
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors" href="/services">Services</a>
+<a class="font-body-lg text-body-lg text-primary-container border-b-2 border-primary-container pb-1" href="/network">Network</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors" href="/contact">Contact</a>
+</div>
+<button class="bg-primary-container text-on-primary font-label-caps text-label-caps px-lg py-sm rounded-lg active:scale-95 transition-transform primary-glow">
+            Connect
+        </button>
+</nav>
+
+<main class="pt-32 pb-xl px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto min-h-screen">
+    <div class="mb-xl">
+        <h1 class="font-display-lg text-display-lg md:text-[64px] text-on-surface leading-tight mb-md">
+            Swarm <span class="text-primary-container">Network</span>
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+            Live telemetry and operational status of the Sovereign Agency computational graph. Our workforce utilizes LangGraph architecture to dynamically allocate LLM cognitive cycles across highly specialized agent nodes.
+        </p>
+    </div>
+
+    <!-- Telemetry Dashboard -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+        <div class="glass-panel p-lg rounded-xl">
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Active Swarm Nodes</div>
+            <div class="font-mono-data text-display-lg-mobile text-primary-container">8</div>
+            <div class="text-xs text-on-surface-variant mt-sm">Operating continuously across 3 continents.</div>
+        </div>
+        <div class="glass-panel p-lg rounded-xl border-l-4 border-l-primary-container">
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">LLM Inference Engine</div>
+            <div class="font-mono-data text-display-lg-mobile text-primary-container">Gemini-2.5-Pro</div>
+            <div class="text-xs text-primary-fixed mt-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">bolt</span> Quantum-Resistant API Connection</div>
+        </div>
+        <div class="glass-panel p-lg rounded-xl">
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Graph Compilation Status</div>
+            <div class="font-mono-data text-display-lg-mobile text-primary-container">OPTIMAL</div>
+            <div class="text-xs text-on-surface-variant mt-sm">StateGraph successfully compiled with 100% integrity.</div>
+        </div>
+    </div>
+
+    <!-- Node Architecture -->
+    <div class="glass-panel p-xl rounded-xl mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-lg flex items-center gap-md">
+            <span class="material-symbols-outlined text-primary-container">account_tree</span>
+            LangGraph Topology
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div>
+                <p class="text-on-surface-variant mb-md">
+                    The network operates on a conditional edge router that parses client scopes and parallelizes execution across relevant agents.
+                </p>
+                <ul class="space-y-sm font-mono-data text-xs text-on-surface-variant border border-white/5 bg-black/20 p-md rounded-lg overflow-x-auto">
+                    <li><span class="text-primary-container">NODE:</span> INTAKE & QUOTING</li>
+                    <li><span class="text-primary-container">NODE:</span> TREASURY_VERIFICATION (Web3 Polygon)</li>
+                    <li><span class="text-primary-container">NODE:</span> SPECIALIST_ROUTER</li>
+                    <li class="pl-4">├── CONSULTANT_AGENT</li>
+                    <li class="pl-4">├── DEFI_ARCHITECT</li>
+                    <li class="pl-4">├── MICRO_SAAS_DEV</li>
+                    <li class="pl-4">└── B2B_AUTOMATION</li>
+                    <li><span class="text-primary-container">NODE:</span> EXECUTIVE_COACH (QA Layer)</li>
+                    <li><span class="text-primary-container">NODE:</span> DELIVERY_ENGINE</li>
+                </ul>
+            </div>
+            <div class="flex items-center justify-center bg-black/30 rounded-lg border border-white/5 p-lg">
+                <div class="text-center">
+                    <span class="material-symbols-outlined text-[64px] text-primary-container/30 mb-md animate-pulse">memory</span>
+                    <div class="font-label-caps text-label-caps text-on-surface-variant">Live Vector Storage Attached</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-lowest/80 backdrop-blur-xl border-t border-white/5 w-full flex flex-col md:flex-row justify-between items-center px-margin-desktop py-lg gap-md mt-auto">
+<div class="font-headline-md text-headline-md text-on-surface">Sovereign Agency</div>
+<div class="flex gap-lg">
+<a class="text-on-tertiary-fixed-variant font-label-caps text-label-caps hover:text-primary-fixed transition-colors" href="/services">Privacy Policy</a>
+<a class="text-on-tertiary-fixed-variant font-label-caps text-label-caps hover:text-primary-fixed transition-colors" href="/services">Terms of Service</a>
+<a class="text-primary-fixed-dim font-bold font-label-caps text-label-caps" href="/network">System Status: Operational</a>
+</div>
+<div class="text-on-tertiary-fixed-variant font-label-caps text-label-caps">
+            © 2024 Sovereign Agency. All Rights Reserved.
+        </div>
+</footer>
+</body></html>

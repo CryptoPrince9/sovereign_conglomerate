@@ -3,7 +3,7 @@ from graph import build_graph
 
 def run_agency():
     print("==================================================")
-    print("🏛️ Welcome to The Sovereign Conglomerate")
+    print("🏛️ Welcome to The Sovereign Agency")
     print("==================================================")
     
     app = build_graph()
@@ -45,7 +45,7 @@ def run_agency():
                 print("\n📦 FINAL DELIVERABLE PREPARED:\n")
                 print(state_update["client_deliverable"])
 
-    print("\n✅ Sovereign Conglomerate Workflow Completed.")
+    print("\n✅ Sovereign Agency Workflow Completed.")
 
 if __name__ == "__main__":
     run_agency()

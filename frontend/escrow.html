@@ -146,10 +146,10 @@
 <div class="flex items-center gap-lg">
 <span class="font-display-lg text-display-lg font-bold text-primary-fixed-dim tracking-tighter" style="font-size: 24px;">ALPHA-COMMAND</span>
 <div class="hidden md:flex gap-md">
-<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
-<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Workforce</a>
-<a class="font-label-caps text-label-caps text-primary border-b-2 border-primary pb-1" href="#">Operations</a>
-<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Security</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="/">Dashboard</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="/network">Workforce</a>
+<a class="font-label-caps text-label-caps text-primary border-b-2 border-primary pb-1" href="/services">Operations</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="/contact">Security</a>
 </div>
 </div>
 <div class="flex items-center gap-md">
@@ -257,7 +257,7 @@
 </div>
 <!-- Action Buttons -->
 <div class="flex flex-col md:flex-row gap-md justify-between items-center px-sm">
-<button class="w-full md:w-auto font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs group">
+<button onclick="window.location.href='/'" class="w-full md:w-auto font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs group">
 <span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
                     Modify Deployment Parameters
                 </button>
@@ -276,9 +276,9 @@
 <footer class="w-full py-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md border-t border-white/5 bg-surface-container-lowest">
 <div class="font-label-caps text-label-caps text-on-surface">© 2024 ALPHA-AGENTIC CONGLOMERATE. SECURED BY QUANTUM-SHIELD.</div>
 <div class="flex gap-lg">
-<a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="#">Privacy Protocol</a>
-<a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="#">Service Level Agreement</a>
-<a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="#">Support</a>
+<a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="/services">Privacy Protocol</a>
+<a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="/network">Service Level Agreement</a>
+<a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="/contact">Support</a>
 </div>
 </footer>
 <!-- Interactive script for feedback -->

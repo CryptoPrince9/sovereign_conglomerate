@@ -4,7 +4,7 @@ from langchain_core.messages import BaseMessage
 
 class ProjectState(TypedDict):
     """
-    The shared state for The Sovereign Conglomerate LangGraph machine.
+    The shared state for The Sovereign Agency LangGraph machine.
     """
     # LangGraph standard message passing
     messages: Annotated[List[BaseMessage], operator.add]

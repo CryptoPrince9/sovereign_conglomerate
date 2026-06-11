@@ -7,7 +7,7 @@ from graph import build_graph
 from state import ProjectState
 from treasury.payment_gateway import treasury
 
-app = FastAPI(title="The Sovereign Conglomerate API", version="1.0.0")
+app = FastAPI(title="The Sovereign Agency API", version="1.0.0")
 
 # In-memory store for project states (in production, use Redis or Postgres)
 db = {}
@@ -29,6 +29,19 @@ async def escrow():
 @app.get("/tracking")
 async def tracking():
     return FileResponse("frontend/tracking.html")
+
+@app.get("/services")
+async def services():
+    return FileResponse("frontend/services.html")
+
+@app.get("/network")
+async def network():
+    return FileResponse("frontend/network.html")
+
+@app.get("/contact")
+async def contact():
+    return FileResponse("frontend/contact.html")
+
 # Compile the LangGraph
 agency_workflow = build_graph()
 
@@ -98,7 +111,7 @@ def execute_workflow(project_id: str, state: ProjectState):
                 db[project_id].update(state_update)
                 
     except Exception as e:
-        print(f"[Project {project_id}] Error in workflow: {e}")
+        import traceback; db[project_id]["qa_feedback"] = traceback.format_exc()
         db[project_id]["qa_status"] = "ERROR"
 
 @app.get("/api/status/{project_id}")
