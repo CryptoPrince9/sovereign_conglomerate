@@ -321,5 +321,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 8000);
     }
 });
-</script></body></html>
-<script>document.getElementById("connect-wallet-btn").addEventListener("click", async () => { if(typeof window.ethereum !== "undefined"){ try{ await window.ethereum.request({method: "eth_requestAccounts"}); alert("Wallet connected successfully! The treasury is actively listening for the transaction."); }catch(e){ alert("Connection rejected: " + e.message); } } else { alert("Please install a Web3 wallet (like MetaMask) to connect."); } });</script>
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('button').forEach(btn => {
+        if(btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
+            btn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                if(typeof window.ethereum !== "undefined"){
+                    try{
+                        await window.ethereum.request({method: "eth_requestAccounts"});
+                        alert("Wallet connected successfully!");
+                    }catch(e){
+                        alert("Connection rejected: " + e.message);
+                    }
+                } else {
+                    alert("Please install a Web3 wallet (like MetaMask) to connect.");
+                }
+            });
+        }
+    });
+});
+</script>
+
+</body></html>
+
