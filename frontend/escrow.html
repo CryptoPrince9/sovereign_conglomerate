@@ -274,7 +274,7 @@
 </main>
 <!-- Footer -->
 <footer class="w-full py-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md border-t border-white/5 bg-surface-container-lowest">
-<div class="font-label-caps text-label-caps text-on-surface">© 2024 ALPHA-AGENTIC CONGLOMERATE. SECURED BY QUANTUM-SHIELD.</div>
+<div class="font-label-caps text-label-caps text-on-surface">© <span class="dynamic-year">2024</span> ALPHA-AGENTIC CONGLOMERATE. SECURED BY QUANTUM-SHIELD.</div>
 <div class="flex gap-lg">
 <a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="/privacy">Privacy Protocol</a>
 <a class="font-body-md text-body-md text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="/terms">Service Level Agreement</a>
@@ -344,5 +344,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dynamic-year').forEach(el => {
+        el.textContent = new Date().getFullYear();
+    });
+});
+</script>
 </body></html>
+
 

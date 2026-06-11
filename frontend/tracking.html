@@ -199,7 +199,7 @@
 <span class="font-mono-data text-mono-data bg-surface-container-highest px-sm py-1 rounded text-on-surface-variant">REF: SC-992-ALPHA</span>
 <span class="font-mono-data text-mono-data text-on-surface-variant flex items-center gap-xs">
 <span class="material-symbols-outlined text-[16px]">calendar_today</span>
-                                Oct 24, 2024
+                                <span class="dynamic-date">Oct 24, 2024</span>
                             </span>
 </div>
 </div>
@@ -326,7 +326,7 @@
 <footer class="w-full bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-white/5 flex flex-col md:flex-row justify-between items-center px-lg py-xl gap-md mt-auto">
 <div class="font-label-caps text-label-caps text-primary">AETHER_OS</div>
 <div class="font-label-caps text-label-caps text-on-tertiary-fixed-variant text-center">
-            © 2024 AETHER AGENTIC SYSTEMS. ALL RIGHTS RESERVED.
+            © <span class="dynamic-year">2024</span> AETHER AGENTIC SYSTEMS. ALL RIGHTS RESERVED.
         </div>
 <div class="flex gap-lg">
 <a class="font-label-caps text-label-caps text-on-tertiary-fixed-variant hover:text-primary-fixed-dim transition-colors" href="/services">Legal</a>
@@ -413,6 +413,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dynamic-date').forEach(el => {
+        el.textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    });
+    document.querySelectorAll('.dynamic-year').forEach(el => {
+        el.textContent = new Date().getFullYear();
+    });
+});
+</script>
 </body></html>
 
 <script>document.getElementById("submit-feedback-btn")?.addEventListener("click", async () => { const feedback = document.getElementById("feedback-input").value; if(!feedback) return alert("Please enter feedback."); const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get("id"); if(!id) return alert("Missing project ID"); document.getElementById("submit-feedback-btn").innerText = "Submitting..."; try { const res = await fetch(`/api/feedback/${id}`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({feedback: feedback})}); const data = await res.json(); alert(data.status); document.getElementById("submit-feedback-btn").innerText = "Submit Feedback"; } catch (e) { alert("Error: " + e.message); document.getElementById("submit-feedback-btn").innerText = "Submit Feedback"; } });</script>
+
