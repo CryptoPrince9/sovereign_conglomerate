@@ -3,18 +3,39 @@ import zipfile
 from langchain_core.tools import tool
 from langchain_experimental.utilities import PythonREPL
 
+import subprocess
+import tempfile
+
 @tool
 def execute_python_code(code: str) -> str:
     """
-    Executes Python code in a REPL and returns the stdout/stderr.
-    Useful for Macro Fiscal, Consultant, and DeFi agents to run math or simulations.
+    Executes Python code in an isolated subprocess and returns the exact stdout and stderr tracebacks.
+    Essential for self-healing loops so the Executive Coach can detect execution failures.
     """
     try:
-        repl = PythonREPL()
-        result = repl.run(code)
-        return result
+        # We mock a true Docker Sandbox by using a local subprocess with timeout
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
+            f.write(code)
+            temp_path = f.name
+            
+        result = subprocess.run(
+            ["python", temp_path],
+            capture_output=True,
+            text=True,
+            timeout=15
+        )
+        
+        # Clean up
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+            
+        if result.returncode != 0:
+            return f"EXECUTION FAILED. TRACEBACK:\n{result.stderr}"
+        return f"EXECUTION SUCCESSFUL. OUTPUT:\n{result.stdout}"
+    except subprocess.TimeoutExpired:
+        return "EXECUTION FAILED: Code timed out after 15 seconds."
     except Exception as e:
-        return f"Execution Error: {e}"
+        return f"EXECUTION SYSTEM ERROR: {e}"
 
 @tool
 def write_deliverable_file(filename: str, content: str) -> str:
@@ -45,5 +66,17 @@ def zip_project_directory(directory_name: str) -> str:
             for file in files:
                 zipf.write(os.path.join(root, file), 
                          os.path.relpath(os.path.join(root, file), 
-                         os.path.join(target_dir, '..')))
     return f"Directory zipped successfully to {zip_path}"
+
+from memory.long_term import memory_bank
+
+@tool
+def search_memory(query: str) -> str:
+    """
+    Searches the agency's long-term ChromaDB memory for past successful operations, templates, or code snippets.
+    Always use this tool before starting a task to see if the agency has solved a similar problem before.
+    """
+    results = memory_bank.recall(query)
+    if not results:
+        return "No relevant past operations found in memory."
+    return f"Found past successful operation:\n{results}"

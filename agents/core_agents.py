@@ -17,13 +17,13 @@ llm = ChatGoogleGenerativeAI(
 )
 
 from langgraph.prebuilt import create_react_agent
-from agents.tools import execute_python_code, write_deliverable_file, zip_project_directory
+from agents.tools import execute_python_code, write_deliverable_file, zip_project_directory, search_memory
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 from typing import List
 
 # Tools available to all agents
-tools = [execute_python_code, write_deliverable_file, zip_project_directory]
+tools = [execute_python_code, write_deliverable_file, zip_project_directory, search_memory]
 
 def build_agent_node(agent_name: str, system_prompt: str):
     """Factory to create a standard tool-equipped agent node for LangGraph."""
@@ -149,32 +149,53 @@ community_manager_agent = build_agent_node(
 # ==========================================
 # Agent 10: Executive Coach (The Alignment Vector)
 # ==========================================
+import re
+
 def executive_coach_node(state: ProjectState):
     print("[EXECUTIVE COACH] Performing QA and synthesizing deliverables...")
     outputs = state.get("agent_outputs", {})
     
-    # Mock evaluation logic
     if len(outputs) == 0:
         state["qa_status"] = "REVISION_REQUESTED"
         state["qa_feedback"] = "No outputs generated. Please execute assigned agents."
-    else:
-        state["qa_status"] = "APPROVED"
-        state["qa_feedback"] = "All SOPs met. Deliverables are aligned with organizational standards."
+        return state
+
+    output_str = str(outputs)
+    
+    # 1. Self-Healing QA Check (Sandboxing)
+    # Extract Python code blocks to physically test them
+    code_blocks = re.findall(r'```python\n(.*?)\n```', output_str, re.DOTALL)
+    for code in code_blocks:
+        print("[EXECUTIVE COACH] Testing extracted python code in sandbox...")
+        exec_result = execute_python_code.invoke({"code": code})
+        if "FAILED" in exec_result or "ERROR" in exec_result:
+            print("[EXECUTIVE COACH] Code execution failed in QA loop. Rejecting and sending traceback to developers.")
+            
+            # Log failure for the Meta-Prompter
+            os.makedirs("optimization", exist_ok=True)
+            with open("optimization/error_logs.txt", "a", encoding="utf-8") as f:
+                f.write(f"--- FAILURE RECORD ---\nCODE:\n{code}\nERROR:\n{exec_result}\n\n")
+                
+            state["qa_status"] = "REVISION_REQUESTED"
+            state["qa_feedback"] = f"Your Python code failed to execute in the Sandbox environment. Please fix the following traceback and return working code:\n\n{exec_result}"
+            return state
+
+    # 2. Synthesis (If QA passes)
+    state["qa_status"] = "APPROVED"
+    state["qa_feedback"] = "All code compiled successfully. SOPs met."
         
-        # Explicitly synthesize into a professional markdown string to avoid "hallucinated" raw dictionaries
-        print("[EXECUTIVE COACH] Formatting deliverables...")
-        try:
-            scope = str(state.get("project_scope", ""))
-            output_str = str(outputs)
-            prompt = f"You are the Executive Coach. The client requested this scope: {scope}\n\nThe agents generated these raw outputs: {output_str}\n\nFormat the raw outputs into a highly professional, cohesive, and clearly formatted Markdown deliverable. Do not add hallucinated features, just organize the raw outputs elegantly."
-            
-            print("[EXECUTIVE COACH] Sleeping for 10 seconds to respect rate limits...")
-            time.sleep(10)
-            
-            result = llm.invoke([HumanMessage(content=prompt)])
-            state["client_deliverable"] = result.content
-        except Exception as e:
-            print(f"[EXECUTIVE COACH] Formatting failed: {e}")
-            state["client_deliverable"] = f"Final Deliverables:\n\n{output_str}"
+    print("[EXECUTIVE COACH] Formatting deliverables...")
+    try:
+        scope = str(state.get("project_scope", ""))
+        prompt = f"You are the Executive Coach. The client requested this scope: {scope}\n\nThe agents generated these raw outputs: {output_str}\n\nFormat the raw outputs into a highly professional, cohesive, and clearly formatted Markdown deliverable. Do not add hallucinated features, just organize the raw outputs elegantly."
+        
+        print("[EXECUTIVE COACH] Sleeping for 10 seconds to respect rate limits...")
+        time.sleep(10)
+        
+        result = llm.invoke([HumanMessage(content=prompt)])
+        state["client_deliverable"] = result.content
+    except Exception as e:
+        print(f"[EXECUTIVE COACH] Formatting failed: {e}")
+        state["client_deliverable"] = f"Final Deliverables:\n\n{output_str}"
             
     return state

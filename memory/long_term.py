@@ -8,14 +8,14 @@ class LongTermMemory:
     """
     def __init__(self, persist_directory="./chroma_db"):
         self.client = chromadb.PersistentClient(path=persist_directory)
-        self.collection = self.client.get_or_create_collection(name="sovereign_memory")
+        self.collection = self.client.get_or_create_collection(name="successful_operations")
 
     def store_project(self, project_id: str, scope: str, deliverable: str):
         """Stores a completed project in long-term memory."""
         document = f"SCOPE:\n{scope}\n\nDELIVERABLE:\n{deliverable}"
         self.collection.upsert(
             documents=[document],
-            metadatas=[{"type": "project_history"}],
+            metadatas=[{"type": "project_history", "status": "APPROVED"}],
             ids=[project_id]
         )
 
