@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "name": "autonomous-agency-portfolio",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}

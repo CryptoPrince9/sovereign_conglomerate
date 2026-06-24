@@ -6,3 +6,4 @@ chroma_db/
 deliverables/
 venv/
 .venv/
+.vercel/
