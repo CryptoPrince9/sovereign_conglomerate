@@ -330,15 +330,54 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('button, #connect-wallet-btn').forEach(btn => {
-        if(btn.id === "connect-wallet-btn" || btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
+    const connectButtons = document.querySelectorAll('button, #connect-wallet-btn');
+    
+    function truncateAddress(address) {
+        return address.slice(0, 6) + "..." + address.slice(-4);
+    }
+    
+    function updateButtonUI(accounts) {
+        if (accounts && accounts.length > 0) {
+            const address = accounts[0];
+            const truncated = truncateAddress(address);
+            connectButtons.forEach(btn => {
+                if (btn.id === "connect-wallet-btn" || btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet" || btn.textContent.includes("...")) {
+                    btn.textContent = truncated;
+                    btn.classList.remove("bg-primary-container", "text-on-primary");
+                    btn.classList.add("bg-secondary-container", "text-primary");
+                }
+            });
+        } else {
+            connectButtons.forEach(btn => {
+                if (btn.id === "connect-wallet-btn" || btn.textContent.includes("...")) {
+                    const isEscrow = window.location.pathname.includes("escrow");
+                    btn.textContent = isEscrow ? "Connect Wallet" : "Connect";
+                    btn.classList.remove("bg-secondary-container", "text-primary");
+                    btn.classList.add("bg-primary-container", "text-on-primary");
+                }
+            });
+        }
+    }
+    
+    if (typeof window.ethereum !== "undefined") {
+        window.ethereum.request({ method: 'eth_accounts' })
+            .then(updateButtonUI)
+            .catch(err => console.error(err));
+            
+        window.ethereum.on('accountsChanged', (accounts) => {
+            updateButtonUI(accounts);
+        });
+    }
+    
+    connectButtons.forEach(btn => {
+        if (btn.id === "connect-wallet-btn" || btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
             btn.addEventListener("click", async (e) => {
                 e.preventDefault();
-                if(typeof window.ethereum !== "undefined"){
-                    try{
-                        await window.ethereum.request({method: "eth_requestAccounts"});
-                        alert("Wallet connected successfully!");
-                    }catch(err){
+                if (typeof window.ethereum !== "undefined") {
+                    try {
+                        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                        updateButtonUI(accounts);
+                    } catch (err) {
                         alert("Connection rejected: " + err.message);
                     }
                 } else {
