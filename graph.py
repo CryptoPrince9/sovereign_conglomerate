@@ -3,7 +3,8 @@ from state import ProjectState
 from agents.core_agents import (
     closer_agent_node, consultant_agent, defi_architect_agent, regenagri_agent,
     edtech_agent, macro_fiscal_agent, b2b_automation_agent, micro_saas_agent,
-    community_manager_agent, executive_coach_node
+    community_manager_agent, geology_swarm_agent, patent_factory_agent,
+    edge_healer_agent, openclaw_bridge_agent, executive_coach_node
 )
 from router import router_node, route_to_specialists, check_payment_status, check_qa_status
 from treasury.payment_gateway import treasury
@@ -41,7 +42,7 @@ def build_graph():
     workflow.add_node("wait_for_payment", treasury_validation_node)
     workflow.add_node("router", router_node)
     
-    # Add the 8 specialists
+    # Add the specialists
     workflow.add_node("consultant_agent", consultant_agent)
     workflow.add_node("defi_architect_agent", defi_architect_agent)
     workflow.add_node("regenagri_agent", regenagri_agent)
@@ -50,6 +51,12 @@ def build_graph():
     workflow.add_node("b2b_automation_agent", b2b_automation_agent)
     workflow.add_node("micro_saas_agent", micro_saas_agent)
     workflow.add_node("community_manager_agent", community_manager_agent)
+    
+    # Add the new swarm/science agents
+    workflow.add_node("geology_swarm_agent", geology_swarm_agent)
+    workflow.add_node("patent_factory_agent", patent_factory_agent)
+    workflow.add_node("edge_healer_agent", edge_healer_agent)
+    workflow.add_node("openclaw_bridge_agent", openclaw_bridge_agent)
     
     workflow.add_node("executive_coach", executive_coach_node)
     workflow.add_node("delivery", delivery_node)
@@ -72,7 +79,8 @@ def build_graph():
     specialist_nodes = [
         "consultant_agent", "defi_architect_agent", "regenagri_agent", 
         "edtech_agent", "macro_fiscal_agent", "b2b_automation_agent", 
-        "micro_saas_agent", "community_manager_agent"
+        "micro_saas_agent", "community_manager_agent",
+        "geology_swarm_agent", "patent_factory_agent", "edge_healer_agent", "openclaw_bridge_agent"
     ]
     
     workflow.add_conditional_edges(

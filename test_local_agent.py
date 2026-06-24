@@ -1,7 +1,7 @@
 import sys
 import os
 
-os.environ["GEMINI_API_KEY"] = "AIzaSyARm8cYTv7BoM3P1ERv9BGjsFnOVyhUn8k"
+# GEMINI_API_KEY is read from environment variable or dotenv file.
 
 from state import ProjectState
 from graph import build_graph
