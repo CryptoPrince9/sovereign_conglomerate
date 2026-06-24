@@ -7,3 +7,8 @@ deliverables/
 venv/
 .venv/
 .vercel/
+chronicler_vault/
+*.epub
+*.m4b
+*.mp3
+*.wav

@@ -16,7 +16,7 @@ except Exception as e:
 
 state = {
     "messages": [],
-    "project_scope": {"description": "Test local."},
+    "project_scope": {"description": "Test local. test_wallet_bypass"},
     "quoted_price_usdt": 0.0,
     "escrow_address": "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A",
     "payment_status": "PAID",

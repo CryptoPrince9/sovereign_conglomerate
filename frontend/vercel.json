@@ -3,7 +3,7 @@
   "name": "autonomous-agency-portfolio",
   "cleanUrls": true,
   "trailingSlash": false,
-  "routes": [
-    { "src": "/(.*)", "dest": "/$1" }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://sovereign-conglomerate-api.onrender.com/api/:path*" }
   ]
 }

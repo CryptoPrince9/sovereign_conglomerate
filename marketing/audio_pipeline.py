@@ -29,6 +29,7 @@ def create_simple_epub(title: str, text_content: str, output_path: str):
         os.makedirs(os.path.join(temp_dir, "OEBPS"), exist_ok=True)
         
         # 4. OEBPS/chapter1.xhtml
+        p_content = text_content.replace('\n', '</p><p>')
         chapter_content = f"""<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -37,7 +38,7 @@ def create_simple_epub(title: str, text_content: str, output_path: str):
 </head>
 <body>
   <h1>{title}</h1>
-  <p>{text_content.replace('\n', '</p><p>')}</p>
+  <p>{p_content}</p>
 </body>
 </html>"""
         with open(os.path.join(temp_dir, "OEBPS", "chapter1.xhtml"), "w", encoding="utf-8") as f:

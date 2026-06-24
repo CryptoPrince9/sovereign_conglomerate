@@ -136,9 +136,7 @@
 <a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors" href="/network">Network</a>
 <a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors" href="/contact">Contact</a>
 </div>
-<button class="bg-primary-container text-on-primary font-label-caps text-label-caps px-lg py-sm rounded-lg active:scale-95 transition-transform primary-glow">
-            Connect
-        </button>
+<button id="connect-wallet-btn" class="bg-primary-container text-on-primary font-label-caps text-label-caps px-lg py-sm rounded-lg active:scale-95 transition-transform primary-glow">Connect</button>
 </nav>
 <main class="pt-20">
 <!-- Hero Section -->
@@ -332,16 +330,16 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('button').forEach(btn => {
-        if(btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
+    document.querySelectorAll('button, #connect-wallet-btn').forEach(btn => {
+        if(btn.id === "connect-wallet-btn" || btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
             btn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 if(typeof window.ethereum !== "undefined"){
                     try{
                         await window.ethereum.request({method: "eth_requestAccounts"});
                         alert("Wallet connected successfully!");
-                    }catch(e){
-                        alert("Connection rejected: " + e.message);
+                    }catch(err){
+                        alert("Connection rejected: " + err.message);
                     }
                 } else {
                     alert("Please install a Web3 wallet (like MetaMask) to connect.");

@@ -134,9 +134,7 @@
 <a class="font-body-lg text-body-lg text-on-surface-variant hover:text-on-surface transition-colors" href="/network">Network</a>
 <a class="font-body-lg text-body-lg text-primary-container border-b-2 border-primary-container pb-1" href="/contact">Contact</a>
 </div>
-<button class="bg-primary-container text-on-primary font-label-caps text-label-caps px-lg py-sm rounded-lg active:scale-95 transition-transform primary-glow">
-            Connect
-        </button>
+<button id="connect-wallet-btn" class="bg-primary-container text-on-primary font-label-caps text-label-caps px-lg py-sm rounded-lg active:scale-95 transition-transform primary-glow">Connect</button>
 </nav>
 
 <main class="pt-32 pb-xl px-margin-mobile md:px-margin-desktop max-w-4xl mx-auto min-h-screen">
@@ -187,5 +185,28 @@
             © <span class="dynamic-year">2024</span> Sovereign Agency. All Rights Reserved.
         </div>
 </footer>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('button, #connect-wallet-btn').forEach(btn => {
+        if(btn.id === "connect-wallet-btn" || btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
+            // Remove any existing event listeners by cloning and replacing if needed,
+            // but since this script runs once on load, we can just add the listener.
+            btn.addEventListener("click", async (e) => {
+                e.preventDefault();
+                if(typeof window.ethereum !== "undefined"){
+                    try{
+                        await window.ethereum.request({method: "eth_requestAccounts"});
+                        alert("Wallet connected successfully!");
+                    }catch(err){
+                        alert("Connection rejected: " + err.message);
+                    }
+                } else {
+                    alert("Please install a Web3 wallet (like MetaMask) to connect.");
+                }
+            });
+        }
+    });
+});
+</script>
 </body></html>
 

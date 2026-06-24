@@ -312,28 +312,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
     
-    // Find text nodes or elements to replace with actual quote and address
-    if (id) { document.getElementById('quote-value').innerText = urlParams.get('quote') || '0.0'; 
-        // Here we just mock it for display, but ideally we'd fetch /api/status/id
-        // In reality, we just redirect to tracking after 5 seconds to simulate payment
-        setTimeout(() => {
-            window.location.href = '/tracking?id=' + id;
-        }, 8000);
+    if (id) {
+        document.getElementById('quote-value').innerText = urlParams.get('quote') || '0.0'; 
+        
+        // Start polling the status of the project
+        const checkStatus = async () => {
+            try {
+                const res = await fetch('/api/status/' + id);
+                if (res.ok) {
+                    const data = await res.json();
+                    // Redirect to tracking dashboard when payment clears
+                    if (data.payment_status === 'PAID') {
+                        window.location.href = '/tracking?id=' + id;
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Error polling payment status:", err);
+            }
+            // Poll every 3 seconds
+            setTimeout(checkStatus, 3000);
+        };
+        checkStatus();
     }
 });
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('button').forEach(btn => {
-        if(btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
+    document.querySelectorAll('button, #connect-wallet-btn').forEach(btn => {
+        if(btn.id === "connect-wallet-btn" || btn.textContent.trim() === "Connect" || btn.textContent.trim() === "Connect Wallet") {
             btn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 if(typeof window.ethereum !== "undefined"){
                     try{
                         await window.ethereum.request({method: "eth_requestAccounts"});
                         alert("Wallet connected successfully!");
-                    }catch(e){
-                        alert("Connection rejected: " + e.message);
+                    }catch(err){
+                        alert("Connection rejected: " + err.message);
                     }
                 } else {
                     alert("Please install a Web3 wallet (like MetaMask) to connect.");
