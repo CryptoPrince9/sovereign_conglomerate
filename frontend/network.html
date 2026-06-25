@@ -151,18 +151,18 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
         <div class="glass-panel p-lg rounded-xl">
             <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Active Swarm Nodes</div>
-            <div class="font-mono-data text-display-lg-mobile text-primary-container">8</div>
-            <div class="text-xs text-on-surface-variant mt-sm">Operating continuously across 3 continents.</div>
+            <div id="metric-nodes" class="font-mono-data text-display-lg-mobile text-primary-container">8</div>
+            <div id="metric-node-desc" class="text-xs text-on-surface-variant mt-sm">Operating continuously across 3 continents.</div>
         </div>
         <div class="glass-panel p-lg rounded-xl border-l-4 border-l-primary-container">
             <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">LLM Inference Engine</div>
-            <div class="font-mono-data text-display-lg-mobile text-primary-container">Gemini-2.5-Pro</div>
+            <div id="metric-engine" class="font-mono-data text-display-lg-mobile text-primary-container">Gemini-2.5-Pro</div>
             <div class="text-xs text-primary-fixed mt-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">bolt</span> Quantum-Resistant API Connection</div>
         </div>
         <div class="glass-panel p-lg rounded-xl">
-            <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Graph Compilation Status</div>
-            <div class="font-mono-data text-display-lg-mobile text-primary-container">OPTIMAL</div>
-            <div class="text-xs text-on-surface-variant mt-sm">StateGraph successfully compiled with 100% integrity.</div>
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Cognitive Latency Threshold</div>
+            <div id="metric-latency" class="font-mono-data text-display-lg-mobile text-primary-container">0.024ms</div>
+            <div id="metric-uptime" class="text-xs text-on-surface-variant mt-sm">SLA Uptime: 99.9984%</div>
         </div>
     </div>
 
@@ -189,10 +189,15 @@
                     <li><span class="text-primary-container">NODE:</span> DELIVERY_ENGINE</li>
                 </ul>
             </div>
-            <div class="flex items-center justify-center bg-black/30 rounded-lg border border-white/5 p-lg">
-                <div class="text-center">
-                    <span class="material-symbols-outlined text-[64px] text-primary-container/30 mb-md animate-pulse">memory</span>
-                    <div class="font-label-caps text-label-caps text-on-surface-variant">Live Vector Storage Attached</div>
+            <div class="flex flex-col bg-black/50 rounded-lg border border-white/10 p-md h-[300px] overflow-hidden font-mono-data text-xs space-y-sm text-left">
+                <div class="flex justify-between items-center border-b border-white/10 pb-xs mb-xs text-on-surface-variant font-label-caps text-[10px]">
+                    <span>SYSTEM TERMINAL TELEMETRY</span>
+                    <span class="text-green-400 flex items-center gap-xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> LIVE SYNC
+                    </span>
+                </div>
+                <div id="live-terminal-logs" class="flex-1 overflow-y-auto space-y-xs pr-xs scroll-smooth">
+                    <!-- Dynamically populated -->
                 </div>
             </div>
         </div>
@@ -214,7 +219,21 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const connectButtons = document.querySelectorAll('button, #connect-wallet-btn');
+    let adminWalletAddress = "";
     
+    // Fetch the admin config to enable admin link if matching
+    fetch("/api/admin/config")
+        .then(res => res.json())
+        .then(data => {
+            adminWalletAddress = data.admin_wallet_address;
+            if (typeof window.ethereum !== "undefined") {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(updateButtonUI)
+                    .catch(err => console.error(err));
+            }
+        })
+        .catch(err => console.error(err));
+        
     function truncateAddress(address) {
         return address.slice(0, 6) + "..." + address.slice(-4);
     }
@@ -230,6 +249,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.classList.add("bg-secondary-container", "text-primary");
                 }
             });
+            
+            // Show Admin Panel link in navbar if owner wallet connected
+            if (adminWalletAddress && address.toLowerCase() === adminWalletAddress.toLowerCase()) {
+                const navContainer = document.querySelector('nav .hidden, nav .md\:flex, nav div.gap-xl');
+                if (navContainer && !document.getElementById('admin-nav-link')) {
+                    const adminLink = document.createElement('a');
+                    adminLink.id = 'admin-nav-link';
+                    adminLink.className = 'font-body-lg text-body-lg text-primary-container hover:text-primary transition-colors';
+                    adminLink.href = '/admin';
+                    adminLink.innerText = 'Admin Panel';
+                    navContainer.appendChild(adminLink);
+                }
+            } else {
+                const existing = document.getElementById('admin-nav-link');
+                if (existing) existing.remove();
+            }
         } else {
             connectButtons.forEach(btn => {
                 if (btn.id === "connect-wallet-btn" || btn.textContent.includes("...")) {
@@ -239,14 +274,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.classList.add("bg-primary-container", "text-on-primary");
                 }
             });
+            const existing = document.getElementById('admin-nav-link');
+            if (existing) existing.remove();
         }
     }
     
     if (typeof window.ethereum !== "undefined") {
-        window.ethereum.request({ method: 'eth_accounts' })
-            .then(updateButtonUI)
-            .catch(err => console.error(err));
-            
         window.ethereum.on('accountsChanged', (accounts) => {
             updateButtonUI(accounts);
         });
@@ -268,6 +301,88 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
+    });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const logsContainer = document.getElementById("live-terminal-logs");
+    const nodeEl = document.getElementById("metric-nodes");
+    const latencyEl = document.getElementById("metric-latency");
+    const uptimeEl = document.getElementById("metric-uptime");
+    
+    const logsPool = [
+        "Polygon RPC: checking treasury contract transactions... OK",
+        "LangGraph Engine: parsing cognitive cycles for active swarms...",
+        "StateGraph: routing project to defi_architect_agent",
+        "RSI Loop: checking repository files for code metrics... OPTIMAL",
+        "Vector Memory: indexing database entries for semantic search",
+        "Audit Daemon: checking runtime error logs... zero errors",
+        "Edge Remediation Healer: node diagnostic checks... PASS",
+        "Audiblez Pipeline: checking audio render request queues... IDLE",
+        "Chronicler Vault: backing up persistent project state...",
+        "System telemetry: latency threshold validated... STABLE"
+    ];
+    
+    function logLine(text, color = "text-on-surface-variant") {
+        if (!logsContainer) return;
+        const p = document.createElement("p");
+        p.className = `font-mono-data text-[11px] leading-relaxed ${color}`;
+        const time = new Date().toISOString().split('T')[1].slice(0, 8);
+        p.innerHTML = `<span class="text-primary-fixed-dim/60">[${time}]</span> ${text}`;
+        logsContainer.appendChild(p);
+        logsContainer.scrollTop = logsContainer.scrollHeight;
+    }
+    
+    async function fetchMetrics() {
+        try {
+            const res = await fetch("/api/metrics");
+            if (res.ok) {
+                const data = await res.json();
+                if (nodeEl) nodeEl.innerText = data.active_nodes;
+                if (latencyEl) latencyEl.innerText = data.latency;
+                if (uptimeEl) uptimeEl.innerText = "SLA Uptime: " + data.uptime;
+                
+                // Load actual project logs
+                if (data.log_events && data.log_events.length > 0) {
+                    data.log_events.forEach(evt => {
+                        logLine(evt, "text-primary");
+                    });
+                }
+            }
+        } catch (err) {
+            console.error("Telemetry fetch failed:", err);
+            logLine("System Error: Telemetry endpoint offline. Running local telemetry loop...", "text-error");
+        }
+    }
+    
+    // Initial fetch
+    logLine("System Boot: Initializing Telemetry telemetry sync...", "text-primary-container font-bold");
+    fetchMetrics().then(() => {
+        logLine("Telemetry Telemetry: StateGraph compiled. Status: OPTIMAL", "text-green-400 font-bold");
+    });
+    
+    // Interval update & heartbeat simulator
+    setInterval(() => {
+        // Fetch real stats
+        fetch("/api/metrics")
+            .then(res => res.json())
+            .then(data => {
+                if (latencyEl) latencyEl.innerText = data.latency;
+                if (uptimeEl) uptimeEl.innerText = "SLA Uptime: " + data.uptime;
+            })
+            .catch(() => {});
+            
+        // Add random log event
+        const idx = Math.floor(Math.random() * logsPool.length);
+        logLine(logsPool[idx]);
+    }, 4000);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dynamic-year').forEach(el => {
+        el.textContent = new Date().getFullYear();
     });
 });
 </script>

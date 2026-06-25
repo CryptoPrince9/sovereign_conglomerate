@@ -291,12 +291,53 @@
         } else {
             document.getElementById("auth-lock-screen").classList.remove("hidden");
             document.getElementById("admin-main-canvas").classList.add("hidden");
+            
+            let selfAuthHTML = "";
+            if (adminWalletAddress === "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A") {
+                selfAuthHTML = `
+                    <div class="mt-lg border-t border-white/10 pt-lg space-y-md">
+                        <p class="text-xs text-on-surface-variant">The Conglomerate is running on default configuration. You can promote your connected wallet to the system administrator address.</p>
+                        <button onclick="promoteWalletToAdmin()" class="w-full bg-primary-container text-on-primary font-label-caps text-label-caps py-md rounded-lg hover:opacity-90 active:scale-[0.98] transition-all primary-glow">
+                            Promote Connected Wallet to Admin
+                        </button>
+                    </div>
+                `;
+            }
+            
             document.getElementById("lock-screen-message").innerHTML = `
-                <span class="text-error font-bold flex items-center gap-xs justify-center mb-sm">
-                    <span class="material-symbols-outlined text-[18px]">gpp_bad</span> Access Denied
-                </span>
-                Connected wallet (${userConnectedAddress.slice(0, 6)}...${userConnectedAddress.slice(-4)}) is not authorized as the Admin command address.
+                <div class="space-y-sm">
+                    <span class="text-error font-bold flex items-center gap-xs justify-center mb-sm">
+                        <span class="material-symbols-outlined text-[18px]">gpp_bad</span> Access Denied
+                    </span>
+                    <p class="text-sm">Connected wallet (${userConnectedAddress.slice(0, 6)}...${userConnectedAddress.slice(-4)}) is not authorized as the Admin command address.</p>
+                    ${selfAuthHTML}
+                </div>
             `;
+        }
+    }
+
+    async function promoteWalletToAdmin() {
+        if (!userConnectedAddress) {
+            alert("No wallet connected.");
+            return;
+        }
+        try {
+            const res = await fetch("/api/admin/authorize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ admin_address: userConnectedAddress })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                alert(data.message);
+                adminWalletAddress = userConnectedAddress;
+                verifyAdminAccess();
+            } else {
+                const data = await res.json();
+                alert("Failed: " + (data.detail || "Unknown error"));
+            }
+        } catch (err) {
+            alert("Error sending authorization request: " + err.message);
         }
     }
 

@@ -316,20 +316,20 @@
 <section class="px-margin-desktop py-xl">
 <div class="grid grid-cols-2 md:grid-cols-4 gap-xl border-y border-white/5 py-xl">
 <div class="text-center">
-<div class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">4.2M+</div>
+<div id="stats-tasks" class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">4,284,720</div>
 <div class="font-label-caps text-label-caps text-on-surface-variant">Tasks Completed</div>
 </div>
 <div class="text-center">
-<div class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">0.03ms</div>
+<div id="stats-latency" class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">0.024ms</div>
 <div class="font-label-caps text-label-caps text-on-surface-variant">Latency Threshold</div>
 </div>
 <div class="text-center">
-<div class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">99.99%</div>
+<div id="stats-uptime" class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">99.9984%</div>
 <div class="font-label-caps text-label-caps text-on-surface-variant">Uptime SLA</div>
 </div>
 <div class="text-center">
-<div class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">24/7</div>
-<div class="font-label-caps text-label-caps text-on-surface-variant">Agent Availability</div>
+<div id="stats-nodes" class="font-mono-data text-primary-fixed-dim text-display-lg-mobile mb-xs">8</div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">Active Swarms</div>
 </div>
 </div>
 </section>
@@ -446,7 +446,21 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const connectButtons = document.querySelectorAll('button, #connect-wallet-btn');
+    let adminWalletAddress = "";
     
+    // Fetch the admin config to enable admin link if matching
+    fetch("/api/admin/config")
+        .then(res => res.json())
+        .then(data => {
+            adminWalletAddress = data.admin_wallet_address;
+            if (typeof window.ethereum !== "undefined") {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(updateButtonUI)
+                    .catch(err => console.error(err));
+            }
+        })
+        .catch(err => console.error(err));
+        
     function truncateAddress(address) {
         return address.slice(0, 6) + "..." + address.slice(-4);
     }
@@ -462,6 +476,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.classList.add("bg-secondary-container", "text-primary");
                 }
             });
+            
+            // Show Admin Panel link in navbar if owner wallet connected
+            if (adminWalletAddress && address.toLowerCase() === adminWalletAddress.toLowerCase()) {
+                const navContainer = document.querySelector('nav .hidden, nav .md\:flex, nav div.gap-xl');
+                if (navContainer && !document.getElementById('admin-nav-link')) {
+                    const adminLink = document.createElement('a');
+                    adminLink.id = 'admin-nav-link';
+                    adminLink.className = 'font-body-lg text-body-lg text-primary-container hover:text-primary transition-colors';
+                    adminLink.href = '/admin';
+                    adminLink.innerText = 'Admin Panel';
+                    navContainer.appendChild(adminLink);
+                }
+            } else {
+                const existing = document.getElementById('admin-nav-link');
+                if (existing) existing.remove();
+            }
         } else {
             connectButtons.forEach(btn => {
                 if (btn.id === "connect-wallet-btn" || btn.textContent.includes("...")) {
@@ -471,14 +501,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.classList.add("bg-primary-container", "text-on-primary");
                 }
             });
+            const existing = document.getElementById('admin-nav-link');
+            if (existing) existing.remove();
         }
     }
     
     if (typeof window.ethereum !== "undefined") {
-        window.ethereum.request({ method: 'eth_accounts' })
-            .then(updateButtonUI)
-            .catch(err => console.error(err));
-            
         window.ethereum.on('accountsChanged', (accounts) => {
             updateButtonUI(accounts);
         });
@@ -543,6 +571,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.dynamic-year').forEach(el => {
         el.textContent = new Date().getFullYear();
     });
+    
+    const tasksEl = document.getElementById("stats-tasks");
+    const latencyEl = document.getElementById("stats-latency");
+    const uptimeEl = document.getElementById("stats-uptime");
+    const nodesEl = document.getElementById("stats-nodes");
+    
+    async function updateStats() {
+        try {
+            const res = await fetch("/api/metrics");
+            if (res.ok) {
+                const data = await res.json();
+                if (tasksEl) tasksEl.textContent = data.tasks_completed;
+                if (latencyEl) latencyEl.textContent = data.latency;
+                if (uptimeEl) uptimeEl.textContent = data.uptime;
+                if (nodesEl) nodesEl.textContent = data.active_nodes;
+            }
+        } catch (err) {
+            console.error("Failed to load live metrics:", err);
+        }
+    }
+    
+    updateStats();
+    setInterval(updateStats, 6000);
 });
 </script>
 </body></html>

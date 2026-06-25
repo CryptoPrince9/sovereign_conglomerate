@@ -342,6 +342,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const connectBtn = document.getElementById('connect-wallet-btn');
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get('id');
+    let adminWalletAddress = "";
+    
+    // Fetch the admin config to enable admin link if matching
+    fetch("/api/admin/config")
+        .then(res => res.json())
+        .then(data => {
+            adminWalletAddress = data.admin_wallet_address;
+            if (typeof window.ethereum !== "undefined") {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(updateButtonUI)
+                    .catch(err => console.error(err));
+            }
+        })
+        .catch(err => console.error(err));
     
     function truncateAddress(address) {
         return address.slice(0, 6) + "..." + address.slice(-4);
@@ -361,19 +375,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 connectBtn.classList.remove("bg-primary-container", "text-on-primary");
                 connectBtn.classList.add("bg-secondary-container", "text-primary");
             }
+            
+            // Show Admin Panel link in navbar if owner wallet connected
+            if (adminWalletAddress && userAddress.toLowerCase() === adminWalletAddress.toLowerCase()) {
+                const navContainer = document.querySelector('nav .hidden, nav .md\\:flex, nav div.gap-md');
+                if (navContainer && !document.getElementById('admin-nav-link')) {
+                    const adminLink = document.createElement('a');
+                    adminLink.id = 'admin-nav-link';
+                    adminLink.className = 'font-label-caps text-label-caps text-primary hover:text-primary-fixed-dim transition-colors';
+                    adminLink.href = '/admin';
+                    adminLink.innerText = 'Admin Panel';
+                    navContainer.appendChild(adminLink);
+                }
+            } else {
+                const existing = document.getElementById('admin-nav-link');
+                if (existing) existing.remove();
+            }
         } else {
             userAddress = "";
             connectBtn.textContent = "Connect Wallet";
             connectBtn.classList.remove("bg-secondary-container", "text-primary");
             connectBtn.classList.add("bg-primary-container", "text-on-primary");
+            
+            const existing = document.getElementById('admin-nav-link');
+            if (existing) existing.remove();
         }
     }
     
     if (typeof window.ethereum !== "undefined") {
-        window.ethereum.request({ method: 'eth_accounts' })
-            .then(updateButtonUI)
-            .catch(err => console.error(err));
-            
         window.ethereum.on('accountsChanged', (accounts) => {
             updateButtonUI(accounts);
         });
@@ -382,7 +411,6 @@ document.addEventListener("DOMContentLoaded", () => {
     connectBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         if (typeof window.ethereum === "undefined") {
-            // Simulated local check fallback if no Web3 wallet
             if (projectId) {
                 if (confirm("Web3 wallet not detected. Would you like to authorize this escrow transaction via local simulated channel?")) {
                     await executePaymentAPI();
@@ -404,11 +432,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         if (projectId) {
-            // Trigger actual Web3 prompt
             connectBtn.textContent = "Authorizing...";
             connectBtn.disabled = true;
             try {
-                // Request a 0-value transaction to the escrow address to show a MetaMask prompt
                 const transactionParameters = {
                     to: '0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A',
                     from: userAddress,
@@ -420,7 +446,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     params: [transactionParameters],
                 });
                 
-                // If confirmed, update backend database to paid
                 await executePaymentAPI();
             } catch (err) {
                 console.error("Web3 transaction failed:", err);
@@ -442,7 +467,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {"Content-Type": "application/json"}
             });
             if (res.ok) {
-                // The status polling script will catch this and redirect
                 console.log("Payment status marked as PAID in database");
             } else {
                 throw new Error("Payment registration failed on server");

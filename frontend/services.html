@@ -262,7 +262,21 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const connectButtons = document.querySelectorAll('button, #connect-wallet-btn');
+    let adminWalletAddress = "";
     
+    // Fetch the admin config to enable admin link if matching
+    fetch("/api/admin/config")
+        .then(res => res.json())
+        .then(data => {
+            adminWalletAddress = data.admin_wallet_address;
+            if (typeof window.ethereum !== "undefined") {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(updateButtonUI)
+                    .catch(err => console.error(err));
+            }
+        })
+        .catch(err => console.error(err));
+        
     function truncateAddress(address) {
         return address.slice(0, 6) + "..." + address.slice(-4);
     }
@@ -278,6 +292,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.classList.add("bg-secondary-container", "text-primary");
                 }
             });
+            
+            // Show Admin Panel link in navbar if owner wallet connected
+            if (adminWalletAddress && address.toLowerCase() === adminWalletAddress.toLowerCase()) {
+                const navContainer = document.querySelector('nav .hidden, nav .md\:flex, nav div.gap-xl');
+                if (navContainer && !document.getElementById('admin-nav-link')) {
+                    const adminLink = document.createElement('a');
+                    adminLink.id = 'admin-nav-link';
+                    adminLink.className = 'font-body-lg text-body-lg text-primary-container hover:text-primary transition-colors';
+                    adminLink.href = '/admin';
+                    adminLink.innerText = 'Admin Panel';
+                    navContainer.appendChild(adminLink);
+                }
+            } else {
+                const existing = document.getElementById('admin-nav-link');
+                if (existing) existing.remove();
+            }
         } else {
             connectButtons.forEach(btn => {
                 if (btn.id === "connect-wallet-btn" || btn.textContent.includes("...")) {
@@ -287,14 +317,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.classList.add("bg-primary-container", "text-on-primary");
                 }
             });
+            const existing = document.getElementById('admin-nav-link');
+            if (existing) existing.remove();
         }
     }
     
     if (typeof window.ethereum !== "undefined") {
-        window.ethereum.request({ method: 'eth_accounts' })
-            .then(updateButtonUI)
-            .catch(err => console.error(err));
-            
         window.ethereum.on('accountsChanged', (accounts) => {
             updateButtonUI(accounts);
         });
