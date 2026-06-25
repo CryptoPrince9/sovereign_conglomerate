@@ -15,7 +15,7 @@ def treasury_validation_node(state: ProjectState):
         return state
     """Wait for Web3 Treasury Layer to confirm USDT payment."""
     # Uses the shared treasury instance to verify funds based on the state quote
-    is_paid = treasury.verify_payment(expected_amount_usdt=state.get("quoted_price_usdt", 0))
+    is_paid = treasury.verify_payment(expected_amount_usdt=state.get("quoted_price_usdt", 0), project_id=state.get("project_id"))
     if is_paid:
         state["payment_status"] = "PAID"
     return state

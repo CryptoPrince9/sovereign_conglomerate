@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -396,22 +398,62 @@ document.addEventListener('DOMContentLoaded', () => {
             const projectId = id || (trackInput ? trackInput.value.trim() : '');
             if (!projectId) return alert("Please specify a project ID to download the deliverables.");
             
-            downloadBtn.innerText = 'Downloading...';
+            downloadBtn.innerText = 'Compiling PDF...';
             try {
                 const res = await fetch('/api/deliverable/' + projectId);
                 if (res.ok) {
                     const data = await res.json();
                     if (data.deliverable) {
-                        const blob = new Blob([data.deliverable], { type: 'text/markdown' });
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'Sovereign_Deliverable_' + projectId + '.md';
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                        window.URL.revokeObjectURL(url);
-                        downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
+                        // Create a styled HTML container for the PDF
+                        const element = document.createElement('div');
+                        element.style.padding = '30px';
+                        element.style.color = '#e3e2e7';
+                        element.style.backgroundColor = '#0d0e12';
+                        element.style.fontFamily = 'Inter, sans-serif';
+                        element.style.fontSize = '13px';
+                        
+                        // Styled header
+                        const headerHtml = `
+                            <div style="border-bottom: 2px solid #00f0ff; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                                <div>
+                                    <h1 style="color: #00f0ff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.02em;">Sovereign Conglomerate Deliverable</h1>
+                                    <p style="color: #849495; margin: 4px 0 0 0; font-size: 11px; font-family: monospace;">PROJECT ID: ${projectId}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="font-family: monospace; font-size: 10px; color: #00f0ff; border: 1px solid #00f0ff; padding: 2px 6px; border-radius: 4px;">SECURE RELEASE</span>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Render Markdown body
+                        const bodyHtml = `
+                            <div style="line-height: 1.6; color: #e3e2e7;" class="markdown-body">
+                                ${marked.parse(data.deliverable)}
+                            </div>
+                        `;
+                        
+                        // Styled footer
+                        const footerHtml = `
+                            <div style="margin-top: 40px; border-top: 1px solid #3b494b; padding-top: 12px; text-align: center; font-size: 9px; color: #849495; font-family: monospace;">
+                                CONFIDENTIAL // AETHER COMMAND DEPLOYMENT BRIEFING // © ${new Date().getFullYear()} SOVEREIGN CONGLOMERATE
+                            </div>
+                        `;
+                        
+                        element.innerHTML = headerHtml + bodyHtml + footerHtml;
+                        
+                        // PDF options
+                        const opt = {
+                            margin:       15,
+                            filename:     'Sovereign_Deliverable_' + projectId + '.pdf',
+                            image:        { type: 'jpeg', quality: 0.98 },
+                            html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#0d0e12' },
+                            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        };
+                        
+                        // Generate PDF
+                        html2pdf().from(element).set(opt).save().then(() => {
+                            downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
+                        });
                     } else {
                         alert(data.status || 'Deliverables not ready yet.');
                         downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
@@ -421,7 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
                 }
             } catch (err) {
-                alert('Network error downloading deliverable.');
+                console.error(err);
+                alert('Network error compiling PDF.');
                 downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
             }
         });
@@ -580,169 +623,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('id');
-    
-    // Set up project ID input on load
-    const trackInput = document.querySelector('header input');
-    if (id && trackInput) {
-        trackInput.value = id;
-        startTracking(id);
-    }
-    
-    // Track button event listener
-    const trackBtn = document.getElementById('navbar-track-btn');
-    if (trackBtn && trackInput) {
-        trackBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const val = trackInput.value.strip ? trackInput.value.strip() : trackInput.value.trim();
-            if (val) {
-                window.location.href = '/tracking?id=' + val;
-            }
-        });
-        
-        // Also support pressing Enter in the input
-        trackInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                trackBtn.click();
-            }
-        });
-    }
-    
-    // Download button event listener
-    const downloadBtn = document.getElementById('download-deliverable-btn');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const projectId = id || (trackInput ? trackInput.value.trim() : '');
-            if (!projectId) return alert("Please specify a project ID to download the deliverables.");
-            
-            downloadBtn.innerText = 'Downloading...';
-            try {
-                const res = await fetch('/api/deliverable/' + projectId);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.deliverable) {
-                        const blob = new Blob([data.deliverable], { type: 'text/markdown' });
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'Sovereign_Deliverable_' + projectId + '.md';
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                        window.URL.revokeObjectURL(url);
-                        downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
-                    } else {
-                        alert(data.status || 'Deliverables not ready yet.');
-                        downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
-                    }
-                } else {
-                    alert('Project deliverable not available or not approved.');
-                    downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
-                }
-            } catch (err) {
-                alert('Network error downloading deliverable.');
-                downloadBtn.innerHTML = '<span class="flex items-center gap-md">Download Final Deliverable <span class="material-symbols-outlined text-[32px]">download_for_offline</span></span>';
-            }
-        });
-    }
-    
-    function startTracking(projectId) {
-        const pollStatus = async () => {
-            try {
-                const res = await fetch('/api/status/' + projectId);
-                if (res.ok) {
-                    const data = await res.json();
-                    updateUI(data);
-                }
-            } catch (err) {
-                console.error("Error polling tracking status:", err);
-            }
-            setTimeout(pollStatus, 3000);
-        };
-        pollStatus();
-    }
-    
-    function updateUI(data) {
-        // Elements
-        const cPayment = document.getElementById('circle-payment');
-        const cExecution = document.getElementById('circle-execution');
-        const cQA = document.getElementById('circle-qa');
-        const cCompleted = document.getElementById('circle-completed');
-        
-        // Dynamic stats
-        const activeAgentsEl = document.querySelector('.flex.-space-x-2');
-        if (activeAgentsEl && data.assigned_agents) {
-            activeAgentsEl.innerHTML = '';
-            data.assigned_agents.forEach((agent, i) => {
-                const bubble = document.createElement('div');
-                bubble.className = 'w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-primary-fixed-dim';
-                bubble.innerText = agent.split('_').map(w => w[0].toUpperCase()).join('');
-                activeAgentsEl.appendChild(bubble);
-            });
-        }
-        
-        // Reset classes
-        [cPayment, cExecution, cQA, cCompleted].forEach(el => {
-            if(el) {
-                el.className = "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ";
-                el.querySelector('.material-symbols-outlined').innerText = 'check_circle';
-            }
-        });
-        if(cCompleted) {
-            cCompleted.className = "w-12 h-12 rounded-full border-4 border-surface flex items-center justify-center transition-all duration-500 ";
-            cCompleted.querySelector('.material-symbols-outlined').innerText = 'verified';
-        }
-        
-        // Style based on current workflow status
-        // Statuses: PENDING_PAYMENT, PAID, AGENTS_EXECUTING, QA_REVIEW, APPROVED, REVISION_REQUESTED
-        const payStatus = data.payment_status;
-        const qaStatus = data.qa_status;
-        
-        if (payStatus !== 'PAID') {
-            // Payment pending
-            cPayment.className += "bg-primary-container text-on-primary-fixed shadow-[0_0_15px_#00f0ff] animate-pulse";
-            cExecution.className += "bg-surface-container-highest text-on-surface-variant/40";
-            cQA.className += "bg-surface-container-highest text-on-surface-variant/40";
-            cCompleted.className += "bg-surface-container-highest text-on-surface-variant/40";
-        } else if (qaStatus === 'PENDING' && (!data.assigned_agents || data.assigned_agents.length === 0)) {
-            // Paid, but routing/starting execution
-            cPayment.className += "bg-primary-container text-on-primary-fixed";
-            cExecution.className += "bg-primary-container text-on-primary-fixed shadow-[0_0_15px_#00f0ff] animate-pulse";
-            cQA.className += "bg-surface-container-highest text-on-surface-variant/40";
-            cCompleted.className += "bg-surface-container-highest text-on-surface-variant/40";
-        } else if (qaStatus === 'PENDING') {
-            // Agents executing
-            cPayment.className += "bg-primary-container text-on-primary-fixed";
-            cExecution.className += "bg-primary-container text-on-primary-fixed";
-            cQA.className += "bg-primary-container text-on-primary-fixed shadow-[0_0_15px_#00f0ff] animate-pulse";
-            cCompleted.className += "bg-surface-container-highest text-on-surface-variant/40";
-        } else if (qaStatus === 'APPROVED') {
-            // Fully approved and completed
-            cPayment.className += "bg-primary-container text-on-primary-fixed";
-            cExecution.className += "bg-primary-container text-on-primary-fixed";
-            cQA.className += "bg-primary-container text-on-primary-fixed";
-            cCompleted.className += "bg-primary-container text-on-primary-fixed shadow-[0_0_25px_#00f0ff]";
-        } else if (qaStatus === 'REVISION_REQUESTED') {
-            // Revision requested (agents re-executing)
-            cPayment.className += "bg-primary-container text-on-primary-fixed";
-            cExecution.className += "bg-primary-container text-on-primary-fixed shadow-[0_0_15px_#00f0ff] animate-pulse";
-            cQA.className += "bg-surface-container-highest text-on-surface-variant/40";
-            cCompleted.className += "bg-surface-container-highest text-on-surface-variant/40";
-        } else {
-            // Default loading or initial state
-            cPayment.className += "bg-primary-container text-on-primary-fixed";
-            cExecution.className += "bg-surface-container-highest text-on-surface-variant/40";
-            cQA.className += "bg-surface-container-highest text-on-surface-variant/40";
-            cCompleted.className += "bg-surface-container-highest text-on-surface-variant/40";
-        }
-    }
-});
-</script>
+
 </body></html>
 
 <script>document.getElementById("submit-feedback-btn")?.addEventListener("click", async () => { const feedback = document.getElementById("feedback-input").value; if(!feedback) return alert("Please enter feedback."); const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get("id"); if(!id) return alert("Missing project ID"); document.getElementById("submit-feedback-btn").innerText = "Submitting..."; try { const res = await fetch(`/api/feedback/${id}`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({feedback: feedback})}); const data = await res.json(); alert(data.status); document.getElementById("submit-feedback-btn").innerText = "Submit Feedback"; } catch (e) { alert("Error: " + e.message); document.getElementById("submit-feedback-btn").innerText = "Submit Feedback"; } });</script>

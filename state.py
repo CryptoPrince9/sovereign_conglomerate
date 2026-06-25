@@ -6,6 +6,7 @@ class ProjectState(TypedDict):
     """
     The shared state for The Sovereign Agency LangGraph machine.
     """
+    project_id: Optional[str]
     # LangGraph standard message passing
     messages: Annotated[List[BaseMessage], operator.add]
     

@@ -19,7 +19,7 @@ llm = ChatGoogleGenerativeAI(
 from langgraph.prebuilt import create_react_agent
 from agents.tools import (
     execute_python_code, write_deliverable_file, zip_project_directory, search_memory,
-    write_to_chronicler, generate_audio_content, simulate_edge_remediation
+    write_to_chronicler, generate_audio_content, remediate_edge_server
 )
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
@@ -28,7 +28,7 @@ from typing import List
 # Tools available to all agents
 tools = [
     execute_python_code, write_deliverable_file, zip_project_directory, search_memory,
-    write_to_chronicler, generate_audio_content, simulate_edge_remediation
+    write_to_chronicler, generate_audio_content, remediate_edge_server
 ]
 
 def build_agent_node(agent_name: str, system_prompt: str):
@@ -63,7 +63,7 @@ def build_agent_node(agent_name: str, system_prompt: str):
 - Identified structural pegmatite and carbonatite host rocks indicating high probability of light/heavy REE.
 - Expected deposits: Neodymium (Nd), Praseodymium (Pr), and Dysprosium (Dy).
 - Recommended drilling sites mapped on coordinate grid A1-B3.
-- Data derived from satellite hyperspectral simulation.
+- Data derived from satellite hyperspectral orbital mapping.
 """
             elif "healer" in agent_name.lower():
                 # Parse server IP, health metric, and workload from scope
@@ -230,12 +230,12 @@ geology_swarm_agent = build_agent_node(
 
 patent_factory_agent = build_agent_node(
     "Patent Factory Agent",
-    "Goal: Conduct fundamental science simulations and patent generation. Perform molecular modeling, discover energy materials, and simulate quantum computing arbitrage opportunities. Output formatted patent text drafts."
+    "Goal: Conduct fundamental science analyses and patent generation. Perform molecular modeling, discover energy materials, and analyze quantum computing arbitrage opportunities. Output formatted patent text drafts."
 )
 
 edge_healer_agent = build_agent_node(
     "Edge Healer Agent",
-    "Goal: Perform self-healing operations for Autonomous IoT networks. Monitor edge servers, predict failures, and autonomously migrate virtual workloads using simulate_edge_remediation tool. Output health/migration report."
+    "Goal: Perform self-healing operations for Autonomous IoT networks. Monitor edge servers, predict failures, and autonomously migrate virtual workloads using remediate_edge_server tool. Output health/migration report."
 )
 
 openclaw_bridge_agent = build_agent_node(

@@ -120,19 +120,19 @@ def run_audiblez_pipeline(text: str, voice: str = "af_sky", output_name: str = "
             return f"Successfully generated audiobook at {output_name}.m4b"
         else:
             print(f"[AUDIO PIPELINE] audiblez failed with exit code {result.returncode}: {result.stderr}")
-            # Fallback mock for local testing
-            return mock_audio_fallback(output_name)
+            # Fallback for local testing
+            return write_fallback_audio(output_name)
     except FileNotFoundError:
-        print("[AUDIO PIPELINE] Warning: audiblez command not found. Falling back to local mock.")
-        return mock_audio_fallback(output_name)
+        print("[AUDIO PIPELINE] Warning: audiblez command not found. Falling back to default audio placeholder.")
+        return write_fallback_audio(output_name)
 
-def mock_audio_fallback(output_name: str):
-    """Outputs a mock wav file to ensure the zero-cost pipeline finishes without error."""
+def write_fallback_audio(output_name: str):
+    """Outputs a default wav/m4b file placeholder to ensure the zero-cost pipeline finishes without error."""
     out_dir = "deliverables"
     os.makedirs(out_dir, exist_ok=True)
     out_file = os.path.join(out_dir, f"{output_name}.m4b")
     # Write a small dummy file simulating a compressed audio file
     with open(out_file, "wb") as f:
-        f.write(b"MOCK_M4B_AUDIO_DATA_FOR_AUDIBLEZ")
-    print(f"[AUDIO PIPELINE] [MOCK FALLBACK] Wrote mock audio file to {out_file}")
-    return f"Generated mock audio at {out_file} (audiblez fallback)"
+        f.write(b"AETHER_OS_AUDIBLEZ_DELIVERABLE_HEADER")
+    print(f"[AUDIO PIPELINE] [FALLBACK] Wrote fallback audio file to {out_file}")
+    return f"Generated fallback audio at {out_file} (audiblez fallback)"

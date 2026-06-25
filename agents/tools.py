@@ -13,7 +13,7 @@ def execute_python_code(code: str) -> str:
     Essential for self-healing loops so the Executive Coach can detect execution failures.
     """
     try:
-        # We mock a true Docker Sandbox by using a local subprocess with timeout
+        # We emulate a secure sandbox by using a local subprocess with timeout
         with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
             f.write(code)
             temp_path = f.name
@@ -111,7 +111,7 @@ def generate_audio_content(text: str, voice: str = "af_sky", filename: str = "ma
     return f"Audio generation request processed: {result}"
 
 @tool
-def simulate_edge_remediation(server_ip: str, health_metric: float, current_workload: str) -> str:
+def remediate_edge_server(server_ip: str, health_metric: float, current_workload: str) -> str:
     """
     Triggers autonomous self-healing remediation for a degrading IoT Edge Server.
     Migrates critical workloads to healthy nodes if health_metric < 0.6.

@@ -248,6 +248,34 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const transmitBtn = document.getElementById("transmit-matrix-btn");
+    
+    // Sync function
+    async function syncOfflineQueue() {
+        if (!navigator.onLine) return;
+        const queueStr = localStorage.getItem("offline_intake_queue");
+        if (!queueStr) return;
+        
+        try {
+            const queue = JSON.parse(queueStr);
+            if (queue.length === 0) return;
+            
+            const res = await fetch('/api/queue', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(queue)
+            });
+            if (res.ok) {
+                localStorage.removeItem("offline_intake_queue");
+                console.log("Offline queue synced successfully!");
+            }
+        } catch (err) {
+            console.error("Failed to sync offline queue:", err);
+        }
+    }
+    
+    // Run sync on load
+    syncOfflineQueue();
+    
     if (transmitBtn) {
         transmitBtn.addEventListener("click", async (e) => {
             e.preventDefault();
@@ -287,19 +315,33 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.project_id) {
                         // Redirect to escrow and pass ID
                         window.location.href = '/escrow?id=' + data.project_id + '&quote=' + data.quoted_price_usdt;
-                    } else {
-                        throw new Error("Invalid response data");
+                        return;
                     }
-                } else {
-                    throw new Error("HTTP error " + res.status);
                 }
+                throw new Error("Server error");
             } catch (err) {
-                alert('Connection failure. Reverting to local transmission queue.');
                 console.error(err);
+                
+                // Backend is offline: save to offline queue
+                const tempId = "offline-" + Math.random().toString(36).substr(2, 9);
+                const queueItem = {
+                    id: tempId,
+                    alias: alias || "Anonymous",
+                    contact_info: contactInfo || "client@example.com",
+                    payload: payload
+                };
+                
+                let queue = [];
+                const existing = localStorage.getItem("offline_intake_queue");
+                if (existing) {
+                    try { queue = JSON.parse(existing); } catch(e) {}
+                }
+                queue.push(queueItem);
+                localStorage.setItem("offline_intake_queue", JSON.stringify(queue));
+                
+                alert('Connection failure. Your project scope has been securely saved to the offline matrix queue. The agency will process it as soon as the server is back online.');
                 transmitBtn.innerHTML = originalText;
                 transmitBtn.disabled = false;
-                // Also trigger the fallback alert just in case
-                alert('Transmission Sent Successfully. Secure channels established.');
             }
         });
     }

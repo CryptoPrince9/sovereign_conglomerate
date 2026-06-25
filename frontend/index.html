@@ -208,6 +208,67 @@
 </div>
 </section>
 
+<!-- Trending Intelligence Reports Section -->
+<section class="px-margin-mobile md:px-margin-desktop py-xl">
+    <div class="mb-xl">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Trending Intelligence Briefs</h2>
+        <p class="font-body-lg text-body-lg text-on-surface-variant">Acquire high-alpha research briefs compiled by our autonomous specialized agent swarms.</p>
+        <div class="w-12 h-1 bg-primary-container mt-xs"></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+        <!-- Report 1 -->
+        <div class="glass-panel p-lg rounded-xl flex flex-col justify-between border border-white/10 hover:border-primary/40 transition-all duration-300 group">
+            <div>
+                <div class="flex justify-between items-start mb-md">
+                    <span class="px-md py-xs rounded bg-primary-fixed-dim/10 text-primary-fixed-dim text-[10px] font-mono-data uppercase tracking-wider">Geology & Satellites</span>
+                    <span class="text-primary font-mono-data text-headline-md font-bold">150 USDT</span>
+                </div>
+                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs group-hover:text-primary transition-colors">Decentralized Rare Earth Metal Exploration</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-md leading-relaxed">
+                    <strong>Teaser Summary:</strong> Analysis of Neodymium-Dysprosium deposits in the Western Americas using HTM-orchestrated edge processors and satellite hyperspectral telemetry. Map anomalies with 98.4% confidence.
+                </p>
+            </div>
+            <button onclick="purchaseReport('report-rare-earths')" data-report-id="report-rare-earths" class="w-full bg-primary-container/10 border border-primary-container/30 hover:bg-primary-container hover:text-on-primary text-primary font-label-caps text-label-caps py-md rounded-lg transition-all duration-200 active:scale-95">
+                Acquire Full Report (PDF)
+            </button>
+        </div>
+
+        <!-- Report 2 -->
+        <div class="glass-panel p-lg rounded-xl flex flex-col justify-between border border-white/10 hover:border-primary/40 transition-all duration-300 group">
+            <div>
+                <div class="flex justify-between items-start mb-md">
+                    <span class="px-md py-xs rounded bg-primary-fixed-dim/10 text-primary-fixed-dim text-[10px] font-mono-data uppercase tracking-wider">Quantum DeFi</span>
+                    <span class="text-primary font-mono-data text-headline-md font-bold">250 USDT</span>
+                </div>
+                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs group-hover:text-primary transition-colors">Darwinian Gödel Machines</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-md leading-relaxed">
+                    <strong>Teaser Summary:</strong> Self-evolving arbitrage algorithms running on hybrid NISQ simulators to capture multi-block DeFi price deviations. Features proof-verification for zero-fault hot patches.
+                </p>
+            </div>
+            <button onclick="purchaseReport('report-quantum-arbitrage')" data-report-id="report-quantum-arbitrage" class="w-full bg-primary-container/10 border border-primary-container/30 hover:bg-primary-container hover:text-on-primary text-primary font-label-caps text-label-caps py-md rounded-lg transition-all duration-200 active:scale-95">
+                Acquire Full Report (PDF)
+            </button>
+        </div>
+
+        <!-- Report 3 -->
+        <div class="glass-panel p-lg rounded-xl flex flex-col justify-between border border-white/10 hover:border-primary/40 transition-all duration-300 group">
+            <div>
+                <div class="flex justify-between items-start mb-md">
+                    <span class="px-md py-xs rounded bg-primary-fixed-dim/10 text-primary-fixed-dim text-[10px] font-mono-data uppercase tracking-wider">Edge-Mesh & IoT</span>
+                    <span class="text-primary font-mono-data text-headline-md font-bold">100 USDT</span>
+                </div>
+                <h3 class="font-headline-md text-headline-md text-on-surface mb-xs group-hover:text-primary transition-colors">Self-Healing A-IoT Edge Swarms</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-md leading-relaxed">
+                    <strong>Teaser Summary:</strong> Hyper-local meteorological prediction grids using redundant routing networks. Bypasses central cloud servers to deliver zero maintenance cost logistics intelligence.
+                </p>
+            </div>
+            <button onclick="purchaseReport('report-aiot-swarms')" data-report-id="report-aiot-swarms" class="w-full bg-primary-container/10 border border-primary-container/30 hover:bg-primary-container hover:text-on-primary text-primary font-label-caps text-label-caps py-md rounded-lg transition-all duration-200 active:scale-95">
+                Acquire Full Report (PDF)
+            </button>
+        </div>
+    </div>
+</section>
+
 <!-- Intake Form Section -->
 <section id="intake" class="px-margin-mobile md:px-margin-desktop py-xl max-w-5xl mx-auto">
 <div class="glass-panel p-xl rounded-xl relative overflow-hidden">
@@ -302,11 +363,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attempt to find the button
     const buttons = Array.from(document.querySelectorAll('button'));
     const btn = buttons.find(b => b.textContent.includes('Generate Quote'));
+    
+    // Sync function
+    async function syncOfflineQueue() {
+        if (!navigator.onLine) return;
+        const queueStr = localStorage.getItem("offline_intake_queue");
+        if (!queueStr) return;
+        
+        try {
+            const queue = JSON.parse(queueStr);
+            if (queue.length === 0) return;
+            
+            const res = await fetch('/api/queue', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(queue)
+            });
+            if (res.ok) {
+                localStorage.removeItem("offline_intake_queue");
+                console.log("Offline queue synced successfully!");
+            }
+        } catch (err) {
+            console.error("Failed to sync offline queue:", err);
+        }
+    }
+    
+    // Run sync on load
+    syncOfflineQueue();
+    
     if (btn) {
         btn.addEventListener('click', async (e) => {
             e.preventDefault();
             const textareas = document.querySelectorAll('textarea');
-            const scope = textareas.length > 0 ? textareas[0].value : 'Default scope';
+            const scope = textareas.length > 0 ? textareas[0].value.trim() : '';
+            
+            if (!scope) {
+                alert("Please enter a project scope before generating a quote.");
+                return;
+            }
             
             btn.textContent = 'Generating...';
             try {
@@ -315,13 +409,34 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({project_scope: scope})
                 });
-                const data = await res.json();
-                if (data.project_id) {
-                    // Redirect to escrow and pass ID
-                    window.location.href = '/escrow?id=' + data.project_id + '&quote=' + data.quoted_price_usdt;
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.project_id) {
+                        window.location.href = '/escrow?id=' + data.project_id + '&quote=' + data.quoted_price_usdt;
+                        return;
+                    }
                 }
+                throw new Error("Server error");
             } catch (err) {
-                alert('Error generating quote.');
+                console.error(err);
+                // Backend is offline / unreachable: save to offline queue
+                const tempId = "offline-" + Math.random().toString(36).substr(2, 9);
+                const queueItem = {
+                    id: tempId,
+                    alias: "Client (Home Form)",
+                    contact_info: "client@example.com",
+                    payload: scope
+                };
+                
+                let queue = [];
+                const existing = localStorage.getItem("offline_intake_queue");
+                if (existing) {
+                    try { queue = JSON.parse(existing); } catch(e) {}
+                }
+                queue.push(queueItem);
+                localStorage.setItem("offline_intake_queue", JSON.stringify(queue));
+                
+                alert('Connection failure. Your project scope has been securely saved to the offline matrix queue. The agency will process it as soon as the server is back online.');
                 btn.textContent = 'Generate Quote & Assign Agents';
             }
         });
@@ -387,6 +502,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+</script>
+
+<script>
+async function purchaseReport(reportId) {
+    try {
+        const btn = document.querySelector(`button[data-report-id="${reportId}"]`);
+        if (btn) {
+            btn.innerText = 'Acquiring Escrow...';
+            btn.disabled = true;
+        }
+        
+        const res = await fetch('/api/purchase-report', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({report_id: reportId})
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.project_id) {
+                window.location.href = `/escrow?id=${data.project_id}&quote=${data.quoted_price_usdt}`;
+                return;
+            }
+        }
+        throw new Error("Escrow registration failed");
+    } catch (err) {
+        console.error(err);
+        alert("Failed to initiate report purchase escrow: " + err.message);
+        const btn = document.querySelector(`button[data-report-id="${reportId}"]`);
+        if (btn) {
+            btn.innerText = 'Acquire Full Report (PDF)';
+            btn.disabled = false;
+        }
+    }
+}
 </script>
 
 <script>

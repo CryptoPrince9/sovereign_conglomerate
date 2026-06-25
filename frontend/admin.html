@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ALPHA-COMMAND | Administration Matrix</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#0d0e12",
+                    "inverse-surface": "#e3e2e7",
+                    "surface-variant": "#343539",
+                    "secondary-fixed": "#e5e2e3",
+                    "tertiary": "#f8f4fa",
+                    "on-primary": "#00363a",
+                    "outline-variant": "#3b494b",
+                    "on-tertiary-fixed-variant": "#47464b",
+                    "surface-container-highest": "#343539",
+                    "surface": "#121317",
+                    "on-surface": "#e3e2e7",
+                    "outline": "#849495",
+                    "primary": "#dbfcff",
+                    "tertiary-fixed-dim": "#c8c5cb",
+                    "inverse-primary": "#006970",
+                    "surface-container-low": "#1a1b1f",
+                    "on-tertiary-fixed": "#1b1b1f",
+                    "on-secondary-fixed": "#1c1b1c",
+                    "on-secondary-container": "#bab8b9",
+                    "on-error": "#690005",
+                    "tertiary-fixed": "#e4e1e7",
+                    "inverse-on-surface": "#2f3034",
+                    "surface-dim": "#121317",
+                    "secondary-fixed-dim": "#c8c6c7",
+                    "error": "#ffb4ab",
+                    "on-background": "#e3e2e7",
+                    "primary-container": "#00f0ff",
+                    "on-secondary-fixed-variant": "#474647",
+                    "secondary-container": "#4a494a",
+                    "secondary": "#c8c6c7",
+                    "background": "#121317",
+                    "on-primary-fixed-variant": "#004f54",
+                    "error-container": "#93000a",
+                    "on-secondary": "#313031",
+                    "on-error-container": "#ffdad6",
+                    "surface-tint": "#00dbe9",
+                    "surface-container": "#1e1f23",
+                    "tertiary-container": "#dbd8de",
+                    "surface-bright": "#38393d",
+                    "primary-fixed-dim": "#00dbe9",
+                    "on-surface-variant": "#b9cacb",
+                    "on-primary-fixed": "#002022",
+                    "surface-container-high": "#292a2e",
+                    "on-tertiary-container": "#5f5e63",
+                    "primary-fixed": "#7df4ff",
+                    "on-primary-container": "#006970",
+                    "on-tertiary": "#303034"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "xl": "40px",
+                    "gutter": "20px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "margin-desktop": "48px",
+                    "margin-mobile": "16px",
+                    "xs": "4px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "mono-data": ["JetBrains Mono"],
+                    "display-lg-mobile": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "18px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0B;
+            color: #e3e2e7;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(18, 19, 23, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .neon-glow-primary {
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+        .pulse-cyan {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .4; transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface/80 backdrop-blur-md border-b border-white/10 shadow-[0_0_20px_rgba(0,219,233,0.05)]">
+<div class="flex items-center gap-lg">
+<span class="font-display-lg text-display-lg font-bold text-primary-fixed-dim tracking-tighter" style="font-size: 24px;">ALPHA-COMMAND</span>
+<div class="hidden md:flex gap-md">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="/">Dashboard</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="/network">Workforce</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200" href="/services">Operations</a>
+<a class="font-label-caps text-label-caps text-primary border-b-2 border-primary pb-1" href="/admin">Admin Panel</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button id="connect-wallet-btn" class="bg-primary-container text-on-primary font-label-caps text-label-caps px-lg py-sm rounded-lg active:scale-95 transition-transform primary-glow">Connect</button>
+</div>
+</nav>
+
+<!-- Auth Gating Lock Screen -->
+<div id="auth-lock-screen" class="min-h-screen pt-24 flex flex-col items-center justify-center relative z-10 px-margin-mobile">
+    <div class="glass-panel p-xl rounded-xl max-w-md w-full text-center space-y-lg">
+        <div class="w-16 h-16 bg-error-container/30 border border-error/20 rounded-full flex items-center justify-center mx-auto text-error">
+            <span class="material-symbols-outlined text-[36px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+        </div>
+        <div class="space-y-xs">
+            <h2 class="font-display-lg text-headline-md text-on-surface">Admin command access required</h2>
+            <p id="lock-screen-message" class="text-on-surface-variant">Please connect your Web3 Admin wallet to decrypt the intelligence matrix dashboard.</p>
+        </div>
+        <button id="lock-screen-connect-btn" class="w-full bg-primary-container text-on-primary font-label-caps text-label-caps py-lg rounded-lg primary-glow active:scale-[0.99] transition-all">
+            Unlock Matrix
+        </button>
+    </div>
+</div>
+
+<!-- Main Admin Panel Canvas (Hidden by default) -->
+<main id="admin-main-canvas" class="min-h-screen pt-24 pb-xl px-margin-mobile md:px-margin-desktop relative z-10 hidden">
+    <!-- Ambient Background Decoration -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-primary/10 blur-[160px] rounded-full"></div>
+    </div>
+
+    <div class="w-full flex flex-col gap-lg relative">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+            <div class="flex flex-col gap-xs">
+                <span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">System Operations Registry</span>
+                <h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface tracking-tighter">Swerve Matrix Administration</h1>
+            </div>
+            <div class="flex items-center gap-sm text-primary-fixed-dim font-mono-data text-mono-data bg-white/5 border border-white/10 rounded-lg p-md">
+                <span class="material-symbols-outlined text-[16px] animate-pulse">shield</span>
+                ADMIN MODE ACTIVE
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-md mt-lg">
+            <div class="glass-panel p-md rounded-xl">
+                <span class="font-label-caps text-[10px] text-on-surface-variant">Swarm Operations</span>
+                <div id="stats-total" class="font-mono-data text-primary text-headline-md mt-xs">0</div>
+            </div>
+            <div class="glass-panel p-md rounded-xl">
+                <span class="font-label-caps text-[10px] text-on-surface-variant">Total Value Locked</span>
+                <div id="stats-tvl" class="font-mono-data text-primary text-headline-md mt-xs">0.00 USDT</div>
+            </div>
+            <div class="glass-panel p-md rounded-xl">
+                <span class="font-label-caps text-[10px] text-on-surface-variant">Active Operations</span>
+                <div id="stats-active" class="font-mono-data text-primary text-headline-md mt-xs">0</div>
+            </div>
+            <div class="glass-panel p-md rounded-xl">
+                <span class="font-label-caps text-[10px] text-on-surface-variant">Remediation Status</span>
+                <div id="stats-stuck" class="font-mono-data text-error text-headline-md mt-xs">0 stuck</div>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <div class="glass-panel rounded-xl overflow-hidden mt-lg border border-white/10">
+            <div class="p-lg border-b border-white/10 bg-white/5 flex justify-between items-center">
+                <h3 class="font-headline-md text-headline-md text-on-surface">Agent Deployment Swarms</h3>
+                <button onclick="loadAdminDashboard()" class="flex items-center gap-xs text-sm text-primary hover:opacity-80 font-bold">
+                    <span class="material-symbols-outlined text-[16px]">sync</span>
+                    Refresh Swarm
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-white/5 text-[10px] font-label-caps text-on-surface-variant bg-surface-container-low/40">
+                            <th class="p-md">Project ID</th>
+                            <th class="p-md">Objective / Scope</th>
+                            <th class="p-md">Specialists</th>
+                            <th class="p-md">USDT Quote</th>
+                            <th class="p-md">Payment</th>
+                            <th class="p-md">Workflow QA Status</th>
+                            <th class="p-md text-right">Matrix Control</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-table-body" class="divide-y divide-white/5">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Info Modal -->
+<div id="info-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden px-margin-mobile">
+    <div class="glass-panel p-xl rounded-xl max-w-2xl w-full space-y-lg relative">
+        <button onclick="closeModal()" class="absolute top-md right-md text-on-surface-variant hover:text-on-surface">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <div class="space-y-xs">
+            <h2 id="modal-title" class="font-headline-md text-headline-md text-on-surface">Project Details</h2>
+            <p id="modal-subtitle" class="text-xs text-on-surface-variant font-mono-data"></p>
+        </div>
+        <div class="border border-white/10 rounded-lg p-md bg-surface-container-low/80 max-h-96 overflow-y-auto font-mono-data text-sm whitespace-pre-wrap" id="modal-content">
+            <!-- Filled dynamically -->
+        </div>
+    </div>
+</div>
+
+<footer class="w-full py-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md border-t border-white/5 bg-surface-container-lowest mt-xl">
+    <div class="font-label-caps text-label-caps text-on-surface">© <span class="dynamic-year">2024</span> ALPHA-COMMAND MATRIX. AUTHORIZED ACCESS ONLY.</div>
+</footer>
+
+<script>
+    let adminWalletAddress = "";
+    let userConnectedAddress = "";
+
+    async function loadConfig() {
+        try {
+            const res = await fetch("/api/admin/config");
+            const data = await res.json();
+            adminWalletAddress = data.admin_wallet_address;
+        } catch (err) {
+            console.error("Error loading config:", err);
+        }
+    }
+
+    async function checkWalletAccess() {
+        if (typeof window.ethereum === "undefined") {
+            document.getElementById("lock-screen-message").innerText = "Please install MetaMask or a Web3 wallet to connect.";
+            return;
+        }
+
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+                userConnectedAddress = accounts[0];
+                verifyAdminAccess();
+            } else {
+                showLockScreen();
+            }
+        } catch (err) {
+            console.error("Wallet check failed:", err);
+            showLockScreen();
+        }
+    }
+
+    function verifyAdminAccess() {
+        if (!adminWalletAddress) return;
+        
+        if (userConnectedAddress.toLowerCase() === adminWalletAddress.toLowerCase()) {
+            document.getElementById("auth-lock-screen").classList.add("hidden");
+            document.getElementById("admin-main-canvas").classList.remove("hidden");
+            loadAdminDashboard();
+        } else {
+            document.getElementById("auth-lock-screen").classList.remove("hidden");
+            document.getElementById("admin-main-canvas").classList.add("hidden");
+            document.getElementById("lock-screen-message").innerHTML = `
+                <span class="text-error font-bold flex items-center gap-xs justify-center mb-sm">
+                    <span class="material-symbols-outlined text-[18px]">gpp_bad</span> Access Denied
+                </span>
+                Connected wallet (${userConnectedAddress.slice(0, 6)}...${userConnectedAddress.slice(-4)}) is not authorized as the Admin command address.
+            `;
+        }
+    }
+
+    function showLockScreen() {
+        document.getElementById("auth-lock-screen").classList.remove("hidden");
+        document.getElementById("admin-main-canvas").classList.add("hidden");
+    }
+
+    async function loadAdminDashboard() {
+        if (!userConnectedAddress) return;
+        
+        try {
+            const res = await fetch("/api/admin/projects", {
+                headers: {
+                    "X-Admin-Address": userConnectedAddress
+                }
+            });
+            
+            if (res.ok) {
+                const projects = await res.json();
+                renderDashboard(projects);
+            } else {
+                console.error("Error loading projects: ", res.statusText);
+            }
+        } catch (err) {
+            console.error("Failed to load dashboard data:", err);
+        }
+    }
+
+    function renderDashboard(projects) {
+        const tbody = document.getElementById("projects-table-body");
+        tbody.innerHTML = "";
+        
+        let total = 0;
+        let tvl = 0.0;
+        let active = 0;
+        let stuck = 0;
+        
+        Object.entries(projects).forEach(([id, state]) => {
+            total++;
+            const price = state.quoted_price_usdt || 0.0;
+            const payStatus = state.payment_status || "PENDING";
+            const qaStatus = state.qa_status || "PENDING";
+            const desc = state.project_scope?.description || "No description provided";
+            const agents = state.assigned_agents || [];
+            
+            if (payStatus === "PAID") {
+                tvl += price;
+            }
+            
+            if (qaStatus === "PENDING" || qaStatus === "REVISION_REQUESTED") {
+                active++;
+            }
+            
+            if (qaStatus === "ERROR") {
+                stuck++;
+            }
+            
+            // Format agents list
+            const agentTags = agents.map(a => {
+                const clean = a.replace("_agent", "");
+                return `<span class="px-md py-xs rounded bg-primary-fixed-dim/10 text-primary-fixed-dim text-[10px] font-mono-data uppercase tracking-wider">${clean}</span>`;
+            }).join(" ");
+            
+            // Table row
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-white/5 transition-colors";
+            
+            // Format QA Status styling
+            let qaBadge = "";
+            if (qaStatus === "APPROVED") {
+                qaBadge = `<span class="flex items-center gap-xs text-green-400 font-bold"><span class="w-2 h-2 rounded-full bg-green-500"></span> APPROVED</span>`;
+            } else if (qaStatus === "ERROR") {
+                qaBadge = `<span class="flex items-center gap-xs text-error font-bold animate-pulse"><span class="w-2 h-2 rounded-full bg-error"></span> STUCK / ERROR</span>`;
+            } else if (qaStatus === "REVISION_REQUESTED") {
+                qaBadge = `<span class="flex items-center gap-xs text-primary font-bold"><span class="w-2 h-2 rounded-full bg-primary-container pulse-cyan"></span> REVISING</span>`;
+            } else {
+                qaBadge = `<span class="flex items-center gap-xs text-on-surface-variant opacity-60"><span class="w-2 h-2 rounded-full bg-on-surface-variant"></span> PENDING</span>`;
+            }
+            
+            // Format payment badge
+            const payBadge = payStatus === "PAID" 
+                ? `<span class="px-md py-xs rounded-full bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-bold font-mono-data">PAID</span>` 
+                : `<span class="px-md py-xs rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold font-mono-data">UNPAID</span>`;
+            
+            tr.innerHTML = `
+                <td class="p-md font-mono-data text-xs cursor-pointer text-primary hover:underline" onclick="navigator.clipboard.writeText('${id}'); alert('Project ID Copied!');">${id.slice(0,8)}...</td>
+                <td class="p-md max-w-xs truncate text-on-surface-variant font-body-md">${desc}</td>
+                <td class="p-md flex flex-wrap gap-xs py-lg">${agentTags || "None"}</td>
+                <td class="p-md font-mono-data text-on-surface font-medium">${price.toFixed(2)} USDT</td>
+                <td class="p-md">${payBadge}</td>
+                <td class="p-md">${qaBadge}</td>
+                <td class="p-md text-right space-x-sm">
+                    <button onclick="viewDetails('${id}', ${JSON.stringify(state).replace(/"/g, '&quot;')})" class="px-md py-xs border border-white/10 hover:border-primary text-xs rounded transition-colors text-on-surface-variant hover:text-primary">Inspect</button>
+                    ${qaStatus === "ERROR" ? `<button onclick="forceFix('${id}')" class="px-md py-xs bg-error-container text-on-error-container hover:scale-105 transition-transform text-xs font-bold rounded">Fix Swarm</button>` : ""}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        // Update stats UI
+        document.getElementById("stats-total").innerText = total;
+        document.getElementById("stats-tvl").innerText = `${tvl.toFixed(2)} USDT`;
+        document.getElementById("stats-active").innerText = active;
+        document.getElementById("stats-stuck").innerText = `${stuck} stuck`;
+    }
+
+    async function forceFix(id) {
+        if (!confirm("Are you sure you want to trigger self-healing protocols on Project " + id + "?")) return;
+        
+        try {
+            const res = await fetch(`/api/admin/fix/${id}`, {
+                method: "POST",
+                headers: {
+                    "X-Admin-Address": userConnectedAddress
+                }
+            });
+            const data = await res.json();
+            alert(data.status);
+            loadAdminDashboard();
+        } catch (err) {
+            alert("Error sending fix command: " + err.message);
+        }
+    }
+
+    function viewDetails(id, state) {
+        document.getElementById("modal-title").innerText = "Inspect Swarm Thread: " + id.slice(0, 8);
+        document.getElementById("modal-subtitle").innerText = "System Audit Details";
+        
+        let details = `=== PROJECT SCOPE ===\n${state.project_scope?.description || "N/A"}\n\n`;
+        details += `=== ASSIGNED SPECIALISTS ===\n${(state.assigned_agents || []).join(", ") || "None"}\n\n`;
+        details += `=== STATUS AUDIT ===\nPayment: ${state.payment_status}\nQA Status: ${state.qa_status}\n\n`;
+        
+        if (state.qa_feedback) {
+            details += `=== DIAGNOSTICS & QA FEEDBACK ===\n${state.qa_feedback}\n\n`;
+        }
+        
+        if (state.client_deliverable) {
+            details += `=== CLIENT DELIVERABLE ===\n${state.client_deliverable}\n\n`;
+        }
+        
+        document.getElementById("modal-content").innerText = details;
+        document.getElementById("info-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+        document.getElementById("info-modal").classList.add("hidden");
+    }
+
+    document.getElementById("lock-screen-connect-btn").addEventListener("click", async (e) => {
+        e.preventDefault();
+        if (typeof window.ethereum === "undefined") {
+            alert("Please install MetaMask to connect.");
+            return;
+        }
+        
+        try {
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            if (accounts.length > 0) {
+                userConnectedAddress = accounts[0];
+                verifyAdminAccess();
+            }
+        } catch (err) {
+            alert("Connection rejected: " + err.message);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        await loadConfig();
+        await checkWalletAccess();
+        
+        // Listen for wallet accountsChanged
+        if (typeof window.ethereum !== "undefined") {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length > 0) {
+                    userConnectedAddress = accounts[0];
+                    verifyAdminAccess();
+                } else {
+                    userConnectedAddress = "";
+                    showLockScreen();
+                }
+            });
+        }
+        
+        // Update dynamic year
+        document.querySelectorAll('.dynamic-year').forEach(el => {
+            el.textContent = new Date().getFullYear();
+        });
+    });
+</script>
+</body></html>
