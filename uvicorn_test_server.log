@@ -1,0 +1,3 @@
+C:\Users\aakwa\.gemini\antigravity\scratch\sovereign_conglomerate\api.py:425: SyntaxWarning: invalid escape sequence '\['
+  \[\\min \\sum_{i,j} C_{ij} x_{ij} \\quad \\text{subject to} \\quad \\sum_j x_{ij} - \\sum_k x_{ki} = b_i\]
+[TREASURY] Warning: Failed to connect to Web3 Provider.

@@ -10,6 +10,18 @@ from graph import build_graph
 from state import ProjectState
 from treasury.payment_gateway import treasury
 
+def get_treasury_address():
+    addr = os.getenv("TREASURY_WALLET_ADDRESS", "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A")
+    if not addr or "yourpolygon" in addr.lower() or len(addr) < 40:
+        return "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A"
+    return addr
+
+def get_admin_address():
+    addr = os.getenv("ADMIN_WALLET_ADDRESS", "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A")
+    if not addr or "yourpolygon" in addr.lower() or len(addr) < 40:
+        return "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A"
+    return addr
+
 class PersistentDict(dict):
     def __init__(self, db_instance, key, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -207,7 +219,7 @@ async def intake_project(req: IntakeRequest, background_tasks: BackgroundTasks):
     
     if 'test_wallet_bypass' in req.project_scope.lower(): base_price = 0.0
     
-    escrow = "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A"
+    escrow = get_treasury_address()
     
     project_state = {
         "project_id": project_id,
@@ -336,7 +348,7 @@ async def queue_intake(items: List[QueueItem], background_tasks: BackgroundTasks
         }
         initial_state = closer_agent_node(initial_state)
         base_price = initial_state.get("quoted_price_usdt", 5000.0)
-        escrow = "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A"
+        escrow = get_treasury_address()
         
         project_state = {
             "project_id": project_id,
@@ -395,7 +407,7 @@ The estimated market value of the mapped anomalies exceeds $4.2B at Q2 2026 valu
     "report-quantum-arbitrage": {
         "title": "Darwinian Gödel Machines: Quantum-Classical Hybrid Arbitrage on Decentralized Liquidity Pools",
         "price": 250.0,
-        "deliverable": """# Darwinian Gödel Machines: Quantum-Classical Hybrid Arbitrage
+        "deliverable": r"""# Darwinian Gödel Machines: Quantum-Classical Hybrid Arbitrage
 **Classification:** CLASSIFIED // TOP SECRET // SOVEREIGN CONGLOMERATE
 **Date:** June 2026
 
@@ -459,12 +471,13 @@ async def purchase_report(req: PurchaseReportRequest):
     report = REPORTS[req.report_id]
     project_id = f"report-{req.report_id}-{str(uuid.uuid4())[:8]}"
     
+    escrow = get_treasury_address()
     project_state = {
         "project_id": project_id,
         "messages": [],
         "project_scope": {"description": f"Purchase of Trending Intelligence Report: {report['title']}"},
         "quoted_price_usdt": report["price"],
-        "escrow_address": "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A",
+        "escrow_address": escrow,
         "payment_status": "PENDING",
         "assigned_agents": ["closer_agent", "defi_architect_agent"],
         "agent_outputs": {},
@@ -478,7 +491,7 @@ async def purchase_report(req: PurchaseReportRequest):
     return {
         "project_id": project_id,
         "quoted_price_usdt": report["price"],
-        "escrow_address": "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A",
+        "escrow_address": escrow,
         "status": "PENDING_PAYMENT"
     }
 
@@ -499,7 +512,8 @@ async def admin():
 @app.get("/api/admin/config")
 async def admin_config():
     return {
-        "admin_wallet_address": os.getenv("ADMIN_WALLET_ADDRESS", "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A")
+        "admin_wallet_address": get_admin_address(),
+        "treasury_wallet_address": get_treasury_address()
     }
 
 class AuthorizeAdminRequest(BaseModel):
@@ -507,7 +521,7 @@ class AuthorizeAdminRequest(BaseModel):
 
 @app.post("/api/admin/authorize")
 async def authorize_admin(req: AuthorizeAdminRequest):
-    current_admin = os.getenv("ADMIN_WALLET_ADDRESS", "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A")
+    current_admin = get_admin_address()
     if current_admin == "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A":
         os.environ["ADMIN_WALLET_ADDRESS"] = req.admin_address
         return {"status": "success", "message": f"Admin wallet successfully set to {req.admin_address}"}
@@ -560,14 +574,14 @@ async def get_metrics():
 
 @app.get("/api/admin/projects")
 async def get_admin_projects(x_admin_address: str = Header(None)):
-    admin_wallet = os.getenv("ADMIN_WALLET_ADDRESS", "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A")
+    admin_wallet = get_admin_address()
     if not x_admin_address or x_admin_address.lower() != admin_wallet.lower():
         raise HTTPException(status_code=403, detail="Access Denied: Invalid Admin Address")
     return db.get_all_projects()
 
 @app.post("/api/admin/fix/{project_id}")
 async def fix_project(project_id: str, background_tasks: BackgroundTasks, x_admin_address: str = Header(None)):
-    admin_wallet = os.getenv("ADMIN_WALLET_ADDRESS", "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A")
+    admin_wallet = get_admin_address()
     if not x_admin_address or x_admin_address.lower() != admin_wallet.lower():
         raise HTTPException(status_code=403, detail="Access Denied: Invalid Admin Address")
         

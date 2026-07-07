@@ -89,7 +89,7 @@ def build_agent_node(agent_name: str, system_prompt: str):
                     workload = workload_match.group(1)
                 
                 # Execute real remediation tool
-                tool_res = simulate_edge_remediation.invoke({"server_ip": ip, "health_metric": health, "current_workload": workload})
+                tool_res = remediate_edge_server.invoke({"server_ip": ip, "health_metric": health, "current_workload": workload})
                 
                 output = f"""# IoT Edge Server Autonomous Remediation Report
 - Monitored Node IP: {ip}

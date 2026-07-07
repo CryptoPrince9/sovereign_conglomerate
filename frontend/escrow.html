@@ -195,8 +195,8 @@
 <div class="flex flex-col gap-lg">
 <div class="flex flex-col gap-sm">
 <label class="font-label-caps text-label-caps text-on-surface-variant">Escrow Smart Contract</label>
-<div class="flex items-center justify-between p-md bg-white/5 border border-white/10 rounded-lg group hover:border-primary/50 transition-all cursor-pointer" onclick="navigator.clipboard.writeText('0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A')">
-<span class="font-mono-data text-mono-data text-primary-fixed text-lg">0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A</span>
+<div id="escrow-address-container" class="flex items-center justify-between p-md bg-white/5 border border-white/10 rounded-lg group hover:border-primary/50 transition-all cursor-pointer" onclick="copyEscrowAddress()">
+<span id="escrow-address-text" class="font-mono-data text-mono-data text-primary-fixed text-lg">0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A</span>
 <span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">content_copy</span>
 </div>
 </div>
@@ -338,17 +338,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 </script>
 <script>
+let escrowWalletAddress = "0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A";
+
+function copyEscrowAddress() {
+    navigator.clipboard.writeText(escrowWalletAddress);
+    const container = document.getElementById('escrow-address-container');
+    const icon = container.querySelector('.material-symbols-outlined');
+    const originalText = icon.innerText;
+    icon.innerText = 'check';
+    container.classList.add('border-primary');
+    
+    setTimeout(() => {
+        icon.innerText = originalText;
+        container.classList.remove('border-primary');
+    }, 2000);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const connectBtn = document.getElementById('connect-wallet-btn');
     const urlParams = new URLSearchParams(window.location.search);
     const projectId = urlParams.get('id');
     let adminWalletAddress = "";
     
-    // Fetch the admin config to enable admin link if matching
+    // Fetch the admin config to enable admin link if matching and load treasury address
     fetch("/api/admin/config")
         .then(res => res.json())
         .then(data => {
             adminWalletAddress = data.admin_wallet_address;
+            if (data.treasury_wallet_address) {
+                escrowWalletAddress = data.treasury_wallet_address;
+                const txtEl = document.getElementById('escrow-address-text');
+                if (txtEl) txtEl.textContent = escrowWalletAddress;
+            }
             if (typeof window.ethereum !== "undefined") {
                 window.ethereum.request({ method: 'eth_accounts' })
                     .then(updateButtonUI)
@@ -436,7 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
             connectBtn.disabled = true;
             try {
                 const transactionParameters = {
-                    to: '0x11D997C9134D8c60E76AA9F3c010fe90EFA9315A',
+                    to: escrowWalletAddress,
                     from: userAddress,
                     value: '0x00',
                 };
